@@ -136,6 +136,10 @@ function renderBlockContent(block, previewMode) {
 			return renderLayoutBlock(block, previewMode);
 		case "checklist":
 			return renderChecklistBlock(block, previewMode);
+		case "sequencing":
+			return renderSequencingBlock(block, previewMode);
+		case "sorting":
+			return renderSortingBlock(block, previewMode);
 		default:
 			return `<p ${editableAttributes(block, "content", {}, previewMode)} class="editable">${escapeHtml(block.content || "")}</p>`;
 	}
@@ -470,4 +474,175 @@ function renderChecklistBlock(block, previewMode) {
       </ul>
     </section>
   `;
+}
+
+/**
+ * Renders the sequencing interaction editor or preview host.
+ *
+ * @param {object} block - Sequencing block with prompt, instructions, and items.
+ * @param {boolean} previewMode - Whether learner interaction should be active.
+ * @returns {string} HTML for the sequencing block.
+ */
+function renderSequencingBlock(block, previewMode) {
+	if (previewMode) {
+		return `
+			<section class="sequencing-activity" data-sequencing-activity data-block-id="${escapeAttr(block.id)}" aria-label="Sequencing interaction">
+				<div class="activity-copy">
+					<h2>${escapeHtml(block.prompt || "Sequencing activity")}</h2>
+					<p>${escapeHtml(block.instructions || "Match each item with the correct answer.")}</p>
+				</div>
+				<div class="seq-container" role="list"></div>
+				<div class="activity-alert" data-activity-alert role="status" aria-live="polite"></div>
+				<div class="activity-actions">
+					<d2l-button data-seq-check primary>Check answers</d2l-button>
+					<d2l-button data-seq-reset class="is-hidden">Try again</d2l-button>
+				</div>
+			</section>
+		`;
+	}
+
+	return `
+		<section class="activity-authoring" aria-label="Sequencing interaction editor">
+			<div class="activity-copy">
+				<h2 ${editableAttributes(block, "prompt", {}, previewMode)} class="editable editor-heading">${escapeHtml(block.prompt)}</h2>
+				<p ${editableAttributes(block, "instructions", {}, previewMode)} class="editable editor-paragraph">${escapeHtml(block.instructions)}</p>
+			</div>
+			<div class="interaction-editor">
+				${(block.items || [])
+					.map(
+						(item, index) => `
+					<div class="interaction-row activity-editor-row">
+						<span class="layout-region__label">Sequence item ${index + 1}</span>
+						<label class="activity-editor-field">
+							<span>Label</span>
+							<div ${editableAttributes(block, "label", { itemIndex: index }, previewMode)} class="editable">${escapeHtml(item.label)}</div>
+						</label>
+						<label class="activity-editor-field">
+							<span>Definition</span>
+							<div ${editableAttributes(block, "definition", { itemIndex: index }, previewMode)} class="editable">${escapeHtml(item.definition)}</div>
+						</label>
+						<label class="activity-editor-field">
+							<span>Hint</span>
+							<div ${editableAttributes(block, "hint", { itemIndex: index }, previewMode)} class="editable">${escapeHtml(item.hint)}</div>
+						</label>
+						<label class="activity-editor-field">
+							<span>Correct feedback</span>
+							<div ${editableAttributes(block, "correctMessage", { itemIndex: index }, previewMode)} class="editable">${escapeHtml(item.correctMessage)}</div>
+						</label>
+						<label class="activity-editor-field">
+							<span>D2L icon</span>
+							<button
+								class="icon-picker-trigger"
+								type="button"
+								data-icon-picker
+								data-block-id="${escapeAttr(block.id)}"
+								data-item-index="${index}"
+								data-current-icon="${escapeAttr(item.icon || "tier1:search")}"
+							>
+								<span class="icon-picker-trigger__preview" aria-hidden="true">
+									<d2l-icon icon="${escapeAttr(item.icon || "tier1:search")}"></d2l-icon>
+								</span>
+								<span class="icon-picker-trigger__name">${escapeHtml(item.icon || "tier1:search")}</span>
+								<span class="icon-picker-trigger__action">Choose icon</span>
+							</button>
+						</label>
+					</div>
+				`,
+					)
+					.join("")}
+			</div>
+		</section>
+	`;
+}
+
+/**
+ * Renders the sorting interaction editor or preview host.
+ *
+ * @param {object} block - Sorting block with categories and sortable items.
+ * @param {boolean} previewMode - Whether learner interaction should be active.
+ * @returns {string} HTML for the sorting block.
+ */
+function renderSortingBlock(block, previewMode) {
+	const categories = block.categories || [];
+	if (previewMode) {
+		return `
+			<section class="sorting-activity" data-sorting-activity data-block-id="${escapeAttr(block.id)}" aria-label="Sorting interaction">
+				<div class="activity-copy">
+					<h2>${escapeHtml(block.prompt || "Sorting activity")}</h2>
+					<p>${escapeHtml(block.instructions || "Sort each item into the correct category.")}</p>
+				</div>
+				<div class="sort-category-grid" data-sort-categories></div>
+				<section class="sort-pool" aria-label="Sortable items">
+					<h3 class="section-title">Sortable Items</h3>
+					<div class="sort-items-dropzone" data-sort-pool tabindex="0">
+						<ul class="sort-items-list"></ul>
+						<div class="sort-drop-placeholder" aria-hidden="true"><d2l-icon icon="tier1:plus-large-thick"></d2l-icon></div>
+					</div>
+				</section>
+				<p class="sr-only" data-sort-live aria-live="polite"></p>
+				<div class="activity-actions" data-sort-actions>
+					<d2l-button data-sort-check primary>Check answers</d2l-button>
+					<d2l-button data-sort-reset class="is-hidden">Try again</d2l-button>
+				</div>
+			</section>
+		`;
+	}
+
+	return `
+		<section class="activity-authoring" aria-label="Sorting interaction editor">
+			<div class="activity-copy">
+				<h2 ${editableAttributes(block, "prompt", {}, previewMode)} class="editable editor-heading">${escapeHtml(block.prompt)}</h2>
+				<p ${editableAttributes(block, "instructions", {}, previewMode)} class="editable editor-paragraph">${escapeHtml(block.instructions)}</p>
+			</div>
+			<div class="interaction-editor">
+				<div class="activity-editor-section">
+					<span class="layout-region__label">Categories</span>
+					${categories
+						.map(
+							(category, index) => `
+						<label class="activity-editor-field">
+							<span>Category ${index + 1}</span>
+							<div ${editableAttributes(block, "title", { categoryIndex: index }, previewMode)} class="editable">${escapeHtml(category.title)}</div>
+						</label>
+					`,
+						)
+						.join("")}
+				</div>
+				<div class="activity-editor-section">
+					<span class="layout-region__label">Sortable items</span>
+					${(block.items || [])
+						.map(
+							(item, index) => `
+						<div class="interaction-row activity-editor-row">
+							<label class="activity-editor-field">
+								<span>Item text</span>
+								<div ${editableAttributes(block, "text", { itemIndex: index }, previewMode)} class="editable">${escapeHtml(item.text)}</div>
+							</label>
+							<label class="activity-editor-field">
+								<span>Correct category</span>
+								<select data-input-field="categoryId" data-block-id="${escapeAttr(block.id)}" data-item-index="${index}">
+									${categories
+										.map(
+											(category) =>
+												`<option value="${escapeAttr(category.id)}" ${item.categoryId === category.id ? "selected" : ""}>${escapeHtml(category.title)}</option>`,
+										)
+										.join("")}
+								</select>
+							</label>
+							<label class="activity-editor-field">
+								<span>Correct feedback</span>
+								<div ${editableAttributes(block, "feedbackCorrect", { itemIndex: index }, previewMode)} class="editable">${escapeHtml(item.feedbackCorrect)}</div>
+							</label>
+							<label class="activity-editor-field">
+								<span>Incorrect feedback</span>
+								<div ${editableAttributes(block, "feedbackIncorrect", { itemIndex: index }, previewMode)} class="editable">${escapeHtml(item.feedbackIncorrect)}</div>
+							</label>
+						</div>
+					`,
+						)
+						.join("")}
+				</div>
+			</div>
+		</section>
+	`;
 }

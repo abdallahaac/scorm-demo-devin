@@ -99,12 +99,14 @@ async function getExportFiles(pageState, packageType = "production") {
 		];
 	}
 
+	const activityInteractions = await fetchText("./src/authoring/activity-interactions.js");
 	return [
 		{ path: "index.html", content: buildProductionIndexHtml(pageState) },
 		{ path: "imsmanifest.xml", content: buildManifestXml(pageState, "production") },
 		{ path: "assets/data/page.json", content: `${JSON.stringify(pageState, null, 2)}\n` },
 		{ path: "assets/js/runtime.js", content: buildRuntimeJs() },
 		{ path: "assets/css/course.css", content: buildCourseCss() },
+		{ path: "src/authoring/activity-interactions.js", content: activityInteractions },
 		{ path: "brightspace-core-bundle.js", content: bundleText },
 		{ path: "lang/en.js", content: "export default {};\n" },
 	];

@@ -105,6 +105,7 @@ export function buildRuntimeJs() {
  * using D2L Core interactions because the production package removes the
  * authoring tool but still needs to display the authored content.
  */
+import { initializeActivityInteractions } from "../../src/authoring/activity-interactions.js";
 
 /**
  * Escapes JSON text before inserting it into generated HTML.
@@ -168,6 +169,10 @@ function renderBlock(block) {
 			return \`<p><a class="course-button" href="\${escapeHtml(block.url)}">\${escapeHtml(block.label)}</a></p>\`;
 		case "checklist":
 			return \`<section class='course-region'><ul>\${block.items.map((item) => \`<li>\${escapeHtml(item.text)}</li>\`).join("")}</ul></section>\`;
+		case "sequencing":
+			return \`<section class="sequencing-activity" data-sequencing-activity data-block-id="\${escapeHtml(block.id)}" aria-label="Sequencing interaction"><div class="activity-copy"><h2>\${escapeHtml(block.prompt || "Sequencing activity")}</h2><p>\${escapeHtml(block.instructions || "Match each item with the correct answer.")}</p></div><div class="seq-container" role="list"></div><div class="activity-alert" data-activity-alert role="status" aria-live="polite"></div><div class="activity-actions"><d2l-button data-seq-check primary>Check answers</d2l-button><d2l-button data-seq-reset class="is-hidden">Try again</d2l-button></div></section>\`;
+		case "sorting":
+			return \`<section class="sorting-activity" data-sorting-activity data-block-id="\${escapeHtml(block.id)}" aria-label="Sorting interaction"><div class="activity-copy"><h2>\${escapeHtml(block.prompt || "Sorting activity")}</h2><p>\${escapeHtml(block.instructions || "Sort each item into the correct category.")}</p></div><div class="sort-category-grid" data-sort-categories></div><section class="sort-pool" aria-label="Sortable items"><h3 class="section-title">Sortable Items</h3><div class="sort-items-dropzone" data-sort-pool tabindex="0"><ul class="sort-items-list"></ul><div class="sort-drop-placeholder" aria-hidden="true"><d2l-icon icon="tier1:plus-large-thick"></d2l-icon></div></div></section><p class="sr-only" data-sort-live aria-live="polite"></p><div class="activity-actions" data-sort-actions><d2l-button data-sort-check primary>Check answers</d2l-button><d2l-button data-sort-reset class="is-hidden">Try again</d2l-button></div></section>\`;
 		default:
 			return \`<section><pre>\${escapeHtml(JSON.stringify(block, null, 2))}</pre></section>\`;
 	}
@@ -178,6 +183,7 @@ fetch("./assets/data/page.json")
 	.then((page) => {
 		document.title = page.title;
 		document.querySelector("#course").innerHTML = \`<h1>\${escapeHtml(page.title)}</h1>\${page.blocks.map(renderBlock).join("")}\`;
+		initializeActivityInteractions({ pageState: page, previewMode: true, root: document });
 	});
 `;
 }
@@ -245,6 +251,322 @@ img {
 	text-decoration: none;
 }
 
+.activity-copy,
+.sequencing-activity,
+.sorting-activity,
+.seq-container,
+.sort-category-grid,
+.sort-pool {
+	display: grid;
+	gap: 1rem;
+}
+
+.activity-copy {
+	gap: 0.45rem;
+}
+
+.activity-copy h2,
+.activity-copy p,
+.sort-category-header h3,
+.section-title,
+.category-info {
+	margin: 0;
+}
+
+.seq-row {
+	background: #ffffff;
+	border: 1px solid #d3d9e3;
+	border-radius: 8px;
+	display: grid;
+	grid-template-columns: minmax(14rem, 17rem) minmax(0, 1fr);
+	overflow: hidden;
+}
+
+.seq-row.drop-target,
+.sort-category-content.drag-over,
+.sort-category-content.ready-to-drop,
+.sort-items-dropzone.drag-over,
+.sort-items-dropzone.ready-to-drop {
+	border-color: #006fbf;
+	box-shadow: 0 0 0 3px rgba(0, 111, 191, 0.14);
+}
+
+.seq-row.is-correct {
+	border-color: #2f8f46;
+}
+
+.seq-row.is-incorrect {
+	border-color: #c3423f;
+}
+
+.seq-left {
+	align-items: center;
+	background: #ffffff;
+	border-right: 1px solid #d3d9e3;
+	display: grid;
+	gap: 0.65rem;
+	grid-template-columns: auto minmax(0, 1fr) auto;
+	padding: 0.85rem;
+}
+
+.left-icon {
+	align-items: center;
+	background: #ffffff;
+	border: 1px solid #d3d9e3;
+	border-radius: 6px;
+	display: inline-flex;
+	height: 2.5rem;
+	justify-content: center;
+	width: 2.5rem;
+}
+
+.left-label {
+	font-weight: 700;
+	line-height: 1.25;
+	text-align: center;
+}
+
+.dropdown-wrap {
+	display: flex;
+	justify-content: flex-end;
+}
+
+.chev-btn::part(button) {
+	min-height: 2.5rem;
+	min-width: 2.5rem;
+	padding: 0;
+}
+
+.seq-right {
+	display: grid;
+	gap: 0.65rem;
+	padding: 0.85rem;
+}
+
+.answer-card,
+.sortable {
+	align-items: center;
+	background: #ffffff;
+	border: 1px solid #d3d9e3;
+	border-radius: 6px;
+	color: #202122;
+	display: grid;
+	gap: 0.65rem;
+	grid-template-columns: auto minmax(0, 1fr);
+	min-height: 3.5rem;
+	padding: 0.7rem 0.8rem;
+}
+
+.answer-card {
+	background: transparent;
+	border-color: transparent;
+}
+
+.answer-card,
+.sortable {
+	cursor: pointer;
+}
+
+.answer-card.dragging {
+	opacity: 0.55;
+}
+
+.drag-handle {
+	color: #565a5c;
+	display: inline-flex;
+}
+
+.answer-text,
+.sortable-text {
+	overflow-wrap: anywhere;
+}
+
+.seq-feedback {
+	border-radius: 6px;
+	display: grid;
+	font-size: 0.9rem;
+	gap: 0.2rem;
+	padding: 0.65rem;
+}
+
+.seq-feedback.correct,
+.sortable.is-correct {
+	background: #f3fbf5;
+}
+
+.seq-feedback.incorrect,
+.sortable.is-incorrect {
+	background: #fff6f6;
+}
+
+.seq-dropdown-menu d2l-menu-item-radio::part(text) {
+	display: block;
+	line-height: 1.35;
+	overflow: visible;
+	overflow-wrap: anywhere;
+	text-overflow: clip;
+	white-space: normal;
+}
+
+.seq-dropdown-submit {
+	align-items: center;
+	background: #006fbf;
+	border: 0;
+	border-radius: 6px;
+	color: #ffffff;
+	cursor: pointer;
+	display: inline-flex;
+	font: inherit;
+	font-weight: 700;
+	justify-content: center;
+	margin: 0.65rem;
+	min-height: 2.65rem;
+	padding: 0.55rem 1rem;
+	width: calc(100% - 1.3rem);
+}
+
+.seq-dropdown-submit:hover,
+.seq-dropdown-submit:focus-visible {
+	background: #005a9e;
+	outline: 3px solid rgba(0, 111, 191, 0.2);
+	outline-offset: 2px;
+}
+
+.activity-alert {
+	border: 1px solid #d3d9e3;
+	border-radius: 8px;
+	display: none;
+	font-weight: 700;
+	padding: 0.75rem;
+}
+
+.activity-alert.is-visible {
+	display: block;
+}
+
+.activity-alert[data-state="success"] {
+	background: #f3fbf5;
+	border-color: #2f8f46;
+}
+
+.activity-alert[data-state="warning"] {
+	background: #fff9e8;
+	border-color: #d18b00;
+}
+
+.activity-actions {
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+}
+
+.is-hidden {
+	display: none !important;
+}
+
+.sort-category-grid {
+	grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+}
+
+.sort-category {
+	display: grid;
+}
+
+.sort-category-header {
+	background: #ffffff;
+	border: 1px solid #d3d9e3;
+	border-radius: 8px 8px 0 0;
+	padding: 0.75rem;
+	text-align: center;
+}
+
+.sort-category-header h3 {
+	font-size: 1rem;
+	line-height: 1.3;
+}
+
+.sort-category-content,
+.sort-items-dropzone {
+	border: 1px dashed #b7c2d0;
+	border-radius: 0 0 8px 8px;
+	cursor: pointer;
+	min-height: 9rem;
+	padding: 0.75rem;
+	position: relative;
+}
+
+.sort-items-dropzone {
+	border-radius: 8px;
+}
+
+.category-info {
+	color: #565a5c;
+	font-size: 0.82rem;
+	padding-bottom: 0.65rem;
+	text-align: center;
+}
+
+.sort-category-items,
+.sort-items-list {
+	display: grid;
+	gap: 0.65rem;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.sortable.is-selected,
+.sortable:focus-visible,
+.sort-category-content:focus-visible,
+.sort-items-dropzone:focus-visible,
+.chev-btn:focus-visible {
+	outline: 3px solid rgba(0, 111, 191, 0.22);
+	outline-offset: 2px;
+}
+
+.sorting-activity.is-checked .sortable {
+	grid-template-columns: minmax(0, 1fr);
+	text-align: center;
+}
+
+.sortable-feedback,
+.sortable-feedback-text {
+	display: none;
+	font-size: 0.9rem;
+}
+
+.sorting-activity.is-checked .sortable-feedback,
+.sorting-activity.is-checked .sortable-feedback-text {
+	display: inline-flex;
+	justify-content: center;
+}
+
+.sortable-feedback {
+	align-items: center;
+	gap: 0.35rem;
+}
+
+.sort-drop-placeholder {
+	color: #b7c2d0;
+	display: grid;
+	justify-content: center;
+	padding: 0.6rem;
+	pointer-events: none;
+}
+
+.sr-only {
+	border: 0;
+	clip: rect(0, 0, 0, 0);
+	height: 1px;
+	margin: -1px;
+	overflow: hidden;
+	padding: 0;
+	position: absolute;
+	white-space: nowrap;
+	width: 1px;
+}
+
 @media (max-width: 44rem) {
 	body {
 		padding: 1rem;
@@ -256,6 +578,15 @@ img {
 
 	.course-region {
 		grid-column: auto !important;
+	}
+
+	.seq-row {
+		grid-template-columns: 1fr;
+	}
+
+	.seq-left {
+		border-bottom: 1px solid #d3d9e3;
+		border-right: 0;
 	}
 }
 `;

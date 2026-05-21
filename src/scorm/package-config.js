@@ -20,8 +20,10 @@
  */
 export const SOURCE_MODULE_FILES = [
 	"src/main.js",
+	"src/authoring/activity-interactions.js",
 	"src/authoring/block-renderers.js",
 	"src/authoring/editor-actions.js",
+	"src/authoring/icon-picker.js",
 	"src/authoring/shell.js",
 	"src/insertion/element-definitions.js",
 	"src/insertion/insert-dialogs.js",
@@ -35,6 +37,7 @@ export const SOURCE_MODULE_FILES = [
 	"src/shared/html.js",
 	"src/shared/ids.js",
 	"src/shared/object.js",
+	"src/shared/tier1-icons.js",
 	"src/state/default-page.js",
 	"src/state/page-state.js",
 	"src/ui/toast.js",
@@ -92,6 +95,7 @@ export function getExportFileList(packageType = "production") {
 		"assets/data/page.json",
 		"assets/js/runtime.js",
 		"assets/css/course.css",
+		"src/authoring/activity-interactions.js",
 		"brightspace-core-bundle.js",
 		"lang/en.js",
 	];

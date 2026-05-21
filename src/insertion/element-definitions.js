@@ -103,6 +103,18 @@ export const elementDefinitions = [
 		title: "Checklist interaction",
 		description: "Add a short list of learner-facing checklist items.",
 	},
+	{
+		type: "sequencing",
+		icon: "tier1:dragger",
+		title: "Sequencing interaction",
+		description: "Ask learners to match concepts with the correct sequence items.",
+	},
+	{
+		type: "sorting",
+		icon: "tier1:sort-type",
+		title: "Sorting interaction",
+		description: "Ask learners to sort items into the correct categories.",
+	},
 ];
 
 /**
@@ -240,6 +252,89 @@ export function createBlock(type) {
 					showProgress: true,
 				},
 			};
+		case "sequencing":
+			return {
+				...base,
+				prompt: "Match each thinking skill with the definition that best describes it.",
+				instructions:
+					"Drag answers between rows or use each row's dropdown to choose a definition, then check your answers.",
+				items: [
+					{
+						id: createId("seq"),
+						label: "Critical Thinking",
+						definition:
+							"The process of analyzing available facts, evidence, and arguments to reach a reasoned judgment.",
+						hint: "judging/evaluating",
+						correctMessage:
+							"Critical thinking includes judging information before accepting it as true.",
+						icon: "tier1:search",
+					},
+					{
+						id: createId("seq"),
+						label: "Strategic Thinking",
+						definition:
+							"A mental process of planning a clear path toward a desired future goal.",
+						hint: "plan",
+						correctMessage:
+							"Strategic thinking focuses on choosing a path that is grounded in reality.",
+						icon: "tier1:bullseye",
+					},
+					{
+						id: createId("seq"),
+						label: "Creative Thinking",
+						definition:
+							"The ability to think in a new way and generate original, valuable ideas.",
+						hint: "new",
+						correctMessage:
+							"Creative thinking generates new ideas that can then be refined.",
+						icon: "tier1:style",
+					},
+					{
+						id: createId("seq"),
+						label: "Problem Solving",
+						definition: "The process of finding and choosing the best solution or option.",
+						hint: "solution",
+						correctMessage:
+							"Problem solving uses analysis, option generation, and judgment to choose a solution.",
+						icon: "tier1:gear",
+					},
+				],
+			};
+		case "sorting": {
+			const firstCategoryId = createId("category");
+			const secondCategoryId = createId("category");
+			return {
+				...base,
+				prompt:
+					"Sort each observable behavior into the category where it belongs.",
+				instructions:
+					"Drag an item to a category, or select an item and then select a category.",
+				categories: [
+					{ id: firstCategoryId, title: "Aaron's behaviors" },
+					{ id: secondCategoryId, title: "Soraiya's behaviors" },
+				],
+				items: [
+					{
+						id: createId("sort"),
+						text: "Responds quickly without analyzing the situation carefully.",
+						categoryId: firstCategoryId,
+						feedbackCorrect:
+							"Critical thinking takes time and effort. This behavior shows a rushed judgment.",
+						feedbackIncorrect:
+							"Look for the category connected to rushing to judgment.",
+					},
+					{
+						id: createId("sort"),
+						text: "Takes time to analyze the situation carefully and seek new information.",
+						categoryId: secondCategoryId,
+						feedbackCorrect:
+							"Critical thinking requires careful analysis and seeking better information.",
+						feedbackIncorrect:
+							"Look for the category connected to deliberate analysis.",
+					},
+				],
+			};
+		}
 		default:
 			return { ...base, content: "New content block" };
 	}

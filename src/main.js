@@ -23,7 +23,9 @@
  * - appRoot: DOM node where the authoring shell is rendered.
  */
 import { renderJson, renderShell } from "./authoring/shell.js";
-import { checkQuizAnswer, updateBlockOrder, updateEditableValue, updateInputValue } from "./authoring/editor-actions.js";
+import { initializeActivityInteractions } from "./authoring/activity-interactions.js";
+import { checkQuizAnswer, updateBlockItemField, updateBlockOrder, updateEditableValue, updateInputValue } from "./authoring/editor-actions.js";
+import { pickTier1Icon } from "./authoring/icon-picker.js";
 import { createBlock, getBlockLabel } from "./insertion/element-definitions.js";
 import { createLayoutBlock, layoutDefinitions } from "./insertion/layout-definitions.js";
 import { downloadJson, downloadScormZip } from "./scorm/exporter.js";
@@ -63,6 +65,7 @@ export function startAuthoringDemo({ root }) {
  */
 function render() {
 	renderShell({ root: appRoot, pageState, previewMode });
+	initializeActivityInteractions({ root: appRoot, pageState, previewMode });
 }
 
 /**
@@ -75,7 +78,7 @@ function render() {
  * This function mutates pageState when users insert, reorder, or remove blocks.
  * It also opens D2L dialogs and delegates SCORM downloads to src/scorm/exporter.js.
  */
-function handleClick(event) {
+async function handleClick(event) {
 	const target = event.target;
 	if (target.closest("#saveBtn")) {
 		savePage();
@@ -127,6 +130,26 @@ function handleClick(event) {
 		const result = updateBlockOrder(pageState, blockAction.dataset.blockId, blockAction.dataset.blockAction);
 		render();
 		if (result.message) showToast(result.message, "success");
+		return;
+	}
+
+	const iconPicker = target.closest("[data-icon-picker]");
+	if (iconPicker) {
+		event.preventDefault();
+		const selectedIcon = await pickTier1Icon({
+			currentIcon: iconPicker.dataset.currentIcon || "tier1:search",
+		});
+		if (!selectedIcon) return;
+		const updated = updateBlockItemField(
+			pageState,
+			iconPicker.dataset.blockId,
+			iconPicker.dataset.itemIndex,
+			"icon",
+			selectedIcon,
+		);
+		if (!updated) return;
+		render();
+		showToast("Icon updated", "success");
 		return;
 	}
 

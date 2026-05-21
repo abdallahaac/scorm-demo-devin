@@ -54,6 +54,7 @@ export function updateEditableValue(pageState, element, value) {
 
 	const itemIndex = element.dataset.itemIndex;
 	const optionIndex = element.dataset.optionIndex;
+	const categoryIndex = element.dataset.categoryIndex;
 	const regionId = element.dataset.regionId;
 	const field = element.dataset.field;
 
@@ -73,6 +74,11 @@ export function updateEditableValue(pageState, element, value) {
 		return;
 	}
 
+	if (categoryIndex !== undefined && block.categories?.[Number(categoryIndex)]) {
+		block.categories[Number(categoryIndex)][field] = value;
+		return;
+	}
+
 	block[field] = value;
 }
 
@@ -89,7 +95,30 @@ export function updateEditableValue(pageState, element, value) {
 export function updateInputValue(pageState, input) {
 	const block = findBlock(pageState, input.dataset.blockId);
 	if (!block) return;
+	const itemIndex = input.dataset.itemIndex;
+	if (itemIndex !== undefined && block.items?.[Number(itemIndex)]) {
+		block.items[Number(itemIndex)][input.dataset.inputField] = input.value || "";
+		return;
+	}
 	block[input.dataset.inputField] = input.value || "";
+}
+
+/**
+ * Updates one nested item field on a block.
+ *
+ * @param {object} pageState - Current page JSON model to mutate.
+ * @param {string} blockId - Block id containing the item.
+ * @param {number|string} itemIndex - Index in block.items.
+ * @param {string} field - Item field to update.
+ * @param {string} value - New field value.
+ * @returns {boolean} Whether the update happened.
+ */
+export function updateBlockItemField(pageState, blockId, itemIndex, field, value) {
+	const block = findBlock(pageState, blockId);
+	const item = block?.items?.[Number(itemIndex)];
+	if (!item) return false;
+	item[field] = value;
+	return true;
 }
 
 /**

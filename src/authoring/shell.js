@@ -75,13 +75,19 @@ export function renderShell({ root, pageState, previewMode }) {
 						${pageState.blocks.map((block, index) => renderBlock(block, index, pageState, previewMode)).join("")}
 					</div>
 				</section>
-				<aside class="json-panel" aria-labelledby="jsonTitle">
-					<div class="json-panel__header">
-						<h2 id="jsonTitle" class="json-panel__title">JSON state</h2>
-						<d2l-button-subtle text="Download JSON" icon="tier1:download" data-download-json></d2l-button-subtle>
-					</div>
-					<pre id="jsonOutput" class="json-output"></pre>
-				</aside>
+				${
+					previewMode
+						? ""
+						: `
+					<aside class="json-panel" aria-labelledby="jsonTitle">
+						<div class="json-panel__header">
+							<h2 id="jsonTitle" class="json-panel__title">JSON state</h2>
+							<d2l-button-subtle text="Download JSON" icon="tier1:download" data-download-json></d2l-button-subtle>
+						</div>
+						<pre id="jsonOutput" class="json-output"></pre>
+					</aside>
+				`
+				}
 			</main>
 		</div>
 		${renderInsertDialog()}
