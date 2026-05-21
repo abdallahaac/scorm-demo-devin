@@ -62,14 +62,21 @@ function editableAttributes(block, field, extra = {}, previewMode = false) {
  *
  * @param {object} block - JSON block to render.
  * @param {number} index - Position of the block in pageState.blocks.
- * @param {object} pageState - Current page model, used for move button state.
+ * @param {object[]} siblingBlocks - Block list that contains this block.
  * @param {boolean} previewMode - Whether editing chrome should be hidden.
+ * @param {number} [depth=0] - Nested layout depth.
  * @returns {string} HTML for the complete block.
  *
  * This function does not mutate pageState. It supports authoring by pairing a
  * reusable block control header with the specialized content renderer.
  */
-export function renderBlock(block, index, pageState, previewMode) {
+export function renderBlock(
+	block,
+	index,
+	siblingBlocks,
+	previewMode,
+	depth = 0,
+) {
 	const label = getBlockLabel(block);
 	const definition = getElementDefinition(block.type);
 	const icon =
@@ -77,7 +84,7 @@ export function renderBlock(block, index, pageState, previewMode) {
 			? "tier1:style"
 			: definition?.icon || "tier1:file-document";
 	return `
-		<article class="content-block" data-block-id="${escapeAttr(block.id)}">
+		<article class="content-block ${depth > 0 ? "content-block--nested" : ""}" data-block-id="${escapeAttr(block.id)}" data-depth="${depth}">
 			<header class="content-block__header">
 				<span class="content-block__label">
 					<d2l-icon icon="${icon}"></d2l-icon>
@@ -85,12 +92,12 @@ export function renderBlock(block, index, pageState, previewMode) {
 				</span>
 				<div class="block-actions" aria-label="${escapeAttr(label)} block actions">
 					<d2l-button-icon text="Move block up" icon="tier1:chevron-up" data-block-action="up" data-block-id="${escapeAttr(block.id)}" ${index === 0 ? "disabled" : ""}></d2l-button-icon>
-					<d2l-button-icon text="Move block down" icon="tier1:chevron-down" data-block-action="down" data-block-id="${escapeAttr(block.id)}" ${index === pageState.blocks.length - 1 ? "disabled" : ""}></d2l-button-icon>
+					<d2l-button-icon text="Move block down" icon="tier1:chevron-down" data-block-action="down" data-block-id="${escapeAttr(block.id)}" ${index === siblingBlocks.length - 1 ? "disabled" : ""}></d2l-button-icon>
 					<d2l-button-icon text="Remove block" icon="tier1:delete" data-block-action="delete" data-block-id="${escapeAttr(block.id)}"></d2l-button-icon>
 				</div>
 			</header>
 			<div class="content-block__body">
-				${renderBlockContent(block, previewMode)}
+				${renderBlockContent(block, previewMode, depth)}
 			</div>
 		</article>
 	`;
@@ -101,12 +108,13 @@ export function renderBlock(block, index, pageState, previewMode) {
  *
  * @param {object} block - JSON block whose type determines the renderer.
  * @param {boolean} previewMode - Whether to render editable or learner-facing content.
+ * @param {number} [depth=0] - Nested layout depth.
  * @returns {string} HTML for the block body.
  *
  * This function is the central switchboard for element and interaction
  * rendering, including text, layouts, tabs, accordions, quiz, reflection, and buttons.
  */
-function renderBlockContent(block, previewMode) {
+function renderBlockContent(block, previewMode, depth = 0) {
 	switch (block.type) {
 		case "heading":
 			return `<h2 ${editableAttributes(block, "content", {}, previewMode)} class="editable editor-heading">${escapeHtml(block.content)}</h2>`;
@@ -133,7 +141,7 @@ function renderBlockContent(block, previewMode) {
 		case "button":
 			return renderButtonBlock(block, previewMode);
 		case "layout":
-			return renderLayoutBlock(block, previewMode);
+			return renderLayoutBlock(block, previewMode, depth);
 		case "checklist":
 			return renderChecklistBlock(block, previewMode);
 		case "sequencing":
@@ -423,12 +431,13 @@ function renderButtonBlock(block, previewMode) {
  *
  * @param {object} block - Layout block with layoutType, settings, and regions.
  * @param {boolean} previewMode - Whether regions should be editable.
+ * @param {number} [depth=0] - Nested layout depth.
  * @returns {string} HTML for the layout grid.
  *
  * This function supports layout insertion by turning layout definition regions
  * into editable JSON-backed panels on the canvas.
  */
-function renderLayoutBlock(block, previewMode) {
+function renderLayoutBlock(block, previewMode, depth = 0) {
 	return `
 		<section aria-label="${escapeAttr(block.title)}">
 			<div class="layout-grid" style="--layout-columns: ${Number(block.settings?.columns || 1)}" data-layout-type="${escapeAttr(block.layoutType)}">
@@ -436,8 +445,41 @@ function renderLayoutBlock(block, previewMode) {
 					.map(
 						(region) => `
 					<div class="layout-region" data-role="${escapeAttr(region.role.toLowerCase())}" data-span="${escapeAttr(region.span || 1)}">
-						<span class="layout-region__label">${escapeHtml(region.role)}</span>
+						<div class="layout-region__header">
+							<span class="layout-region__label">${escapeHtml(region.role)}</span>
+							${
+								previewMode
+									? ""
+									: `
+								<div class="layout-region__actions" aria-label="${escapeAttr(region.role)} insertion actions">
+									<d2l-button-subtle text="Element" icon="tier1:add" data-region-insert-element data-block-id="${escapeAttr(block.id)}" data-region-id="${escapeAttr(region.id)}"></d2l-button-subtle>
+									<d2l-button-subtle text="Sub layout" icon="tier1:style" data-region-insert-layout data-block-id="${escapeAttr(block.id)}" data-region-id="${escapeAttr(region.id)}"></d2l-button-subtle>
+								</div>
+							`
+							}
+						</div>
 						<div ${editableAttributes(block, "content", { regionId: region.id }, previewMode)} class="editable">${escapeHtml(region.content)}</div>
+						${
+							(region.blocks || []).length
+								? `
+							<div class="nested-blocks" aria-label="${escapeAttr(region.role)} nested blocks">
+								${region.blocks
+									.map((nestedBlock, nestedIndex) =>
+										renderBlock(
+											nestedBlock,
+											nestedIndex,
+											region.blocks || [],
+											previewMode,
+											depth + 1,
+										),
+									)
+									.join("")}
+							</div>
+						`
+								: previewMode
+									? ""
+									: `<p class="layout-region__empty">Add elements, interactions, or sub layouts here.</p>`
+						}
 					</div>
 				`,
 					)

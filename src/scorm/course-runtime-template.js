@@ -130,6 +130,120 @@ const escapeHtml = (value) => String(value ?? "").replace(/[&<>"']/g, (match) =>
  */
 const renderEditableText = (value, tag = "p") => \`<\${tag}>\${escapeHtml(value)}</\${tag}>\`;
 
+let pageState;
+let activeModuleId = "";
+
+const flattenModules = (modules = []) => {
+	const flattened = [];
+	const visit = (nodes) => {
+		nodes.forEach((module) => {
+			flattened.push(module);
+			visit(module.children || []);
+		});
+	};
+	visit(modules);
+	return flattened;
+};
+
+const findModule = (modules = [], moduleId) => {
+	for (const module of modules) {
+		if (module.id === moduleId) return module;
+		const child = findModule(module.children || [], moduleId);
+		if (child) return child;
+	}
+	return undefined;
+};
+
+const moduleHasActiveChild = (module) =>
+	module.id === activeModuleId ||
+	(module.children || []).some((child) => moduleHasActiveChild(child));
+
+const getModuleNeighbors = () => {
+	const modules = flattenModules(pageState.modules || []);
+	const currentIndex = modules.findIndex((module) => module.id === activeModuleId);
+	return {
+		currentIndex,
+		total: modules.length,
+		previous: currentIndex > 0 ? modules[currentIndex - 1] : undefined,
+		next:
+			currentIndex >= 0 && currentIndex < modules.length - 1
+				? modules[currentIndex + 1]
+				: undefined,
+	};
+};
+
+const renderModuleTree = (modules = []) =>
+	\`<ol class="course-module-tree">\${modules.map(renderModuleTreeNode).join("")}</ol>\`;
+
+const renderModuleTreeNode = (module) => {
+	const hasChildren = (module.children || []).length > 0;
+	const active = module.id === activeModuleId;
+	const expanded = hasChildren && ((module.expanded ?? true) || moduleHasActiveChild(module));
+	return \`
+		<li class="course-module-tree__item">
+			<div class="course-module-tree__row \${active ? "is-active" : ""}">
+				\${hasChildren
+					? \`<button class="course-module-tree__toggle" type="button" data-course-module-toggle="\${escapeHtml(module.id)}" aria-label="\${expanded ? "Collapse" : "Expand"} \${escapeHtml(module.title)}" aria-expanded="\${expanded}">
+						<d2l-icon icon="\${expanded ? "tier1:chevron-down" : "tier1:chevron-right"}" aria-hidden="true"></d2l-icon>
+					</button>\`
+					: \`<span class="course-module-tree__spacer"></span>\`
+				}
+				<button class="course-module-tree__select" type="button" data-course-module-select="\${escapeHtml(module.id)}">
+					\${escapeHtml(module.title)}
+				</button>
+			</div>
+			\${hasChildren && expanded ? \`<div class="course-module-tree__children">\${renderModuleTree(module.children || [])}</div>\` : ""}
+		</li>
+	\`;
+};
+
+const renderModulePager = (activeModule) => {
+	const neighbors = getModuleNeighbors();
+	const current = neighbors.currentIndex >= 0 ? neighbors.currentIndex + 1 : 0;
+	return \`
+		<nav class="course-module-pager" aria-label="Module navigation">
+			<button class="course-chevron" type="button" data-course-module-nav="previous" aria-label="Previous module" \${neighbors.previous ? "" : "disabled"}>
+				<d2l-icon icon="tier1:chevron-left" aria-hidden="true"></d2l-icon>
+			</button>
+			<div class="course-module-pager__title">
+				<span>\${current} of \${neighbors.total}</span>
+				<strong>\${escapeHtml(activeModule?.title || pageState.title)}</strong>
+			</div>
+			<button class="course-chevron" type="button" data-course-module-nav="next" aria-label="Next module" \${neighbors.next ? "" : "disabled"}>
+				<d2l-icon icon="tier1:chevron-right" aria-hidden="true"></d2l-icon>
+			</button>
+		</nav>
+	\`;
+};
+
+const renderModuleCourse = () => {
+	const modules = flattenModules(pageState.modules || []);
+	const activeModule =
+		findModule(pageState.modules || [], activeModuleId) || modules[0];
+	activeModuleId = activeModule?.id || "";
+	return \`
+		<div class="course-module-shell">
+			<aside class="course-module-nav" aria-label="Course contents">
+				<header class="course-module-nav__header">
+					<span>Contents</span>
+					<strong>\${escapeHtml(pageState.title)}</strong>
+				</header>
+				\${renderModuleTree(pageState.modules || [])}
+			</aside>
+			<section class="course-module-main" aria-labelledby="activeModuleTitle">
+				\${renderModulePager(activeModule)}
+				<div class="course-module-lesson">
+					<h1 id="activeModuleTitle">\${escapeHtml(activeModule?.title || pageState.title)}</h1>
+					\${(activeModule?.blocks || []).length
+						? (activeModule.blocks || []).map(renderBlock).join("")
+						: \`<section class="course-region"><p>No content has been added to this module yet.</p></section>\`
+					}
+				</div>
+			</section>
+		</div>
+	\`;
+};
+
 /**
  * Renders one production learner block from JSON.
  *
@@ -162,7 +276,7 @@ function renderBlock(block) {
 		case "scenario":
 			return \`<section class="course-region"><h2>\${escapeHtml(block.title)}</h2><p>\${escapeHtml(block.situation)}</p><p>\${escapeHtml(block.prompt)}</p></section>\`;
 		case "layout":
-			return \`<section class="course-layout" style="--columns:\${block.settings?.columns || 1}">\${block.regions.map((region) => \`<div class="course-region" style="grid-column:span \${region.span || 1}"><strong>\${escapeHtml(region.role)}</strong><p>\${escapeHtml(region.content)}</p></div>\`).join("")}</section>\`;
+			return \`<section class="course-layout" style="--columns:\${block.settings?.columns || 1}">\${block.regions.map((region) => \`<div class="course-region" style="grid-column:span \${region.span || 1}"><strong>\${escapeHtml(region.role)}</strong><p>\${escapeHtml(region.content)}</p>\${(region.blocks || []).map(renderBlock).join("")}</div>\`).join("")}</section>\`;
 		case "divider":
 			return "<hr />";
 		case "button":
@@ -181,9 +295,50 @@ function renderBlock(block) {
 fetch("./assets/data/page.json")
 	.then((response) => response.json())
 	.then((page) => {
+		pageState = page;
 		document.title = page.title;
-		document.querySelector("#course").innerHTML = \`<h1>\${escapeHtml(page.title)}</h1>\${page.blocks.map(renderBlock).join("")}\`;
-		initializeActivityInteractions({ pageState: page, previewMode: true, root: document });
+		const moduleCourse = page.metadata?.courseFormat === "module" && Array.isArray(page.modules) && page.modules.length;
+		const modules = flattenModules(page.modules || []);
+		activeModuleId = page.activeModuleId && modules.some((module) => module.id === page.activeModuleId)
+			? page.activeModuleId
+			: modules[0]?.id || "";
+		const renderCourse = () => {
+			document.querySelector("#course").innerHTML = moduleCourse
+				? renderModuleCourse()
+				: \`<div class="course-standalone"><h1>\${escapeHtml(page.title)}</h1>\${page.blocks.map(renderBlock).join("")}</div>\`;
+			initializeActivityInteractions({ pageState: page, previewMode: true, root: document });
+		};
+
+		document.querySelector("#course").addEventListener("click", (event) => {
+			const toggle = event.target.closest("[data-course-module-toggle]");
+			if (toggle) {
+				const module = findModule(page.modules || [], toggle.dataset.courseModuleToggle);
+				if (module) module.expanded = !(module.expanded ?? true);
+				renderCourse();
+				return;
+			}
+
+			const select = event.target.closest("[data-course-module-select]");
+			if (select) {
+				activeModuleId = select.dataset.courseModuleSelect;
+				renderCourse();
+				return;
+			}
+
+			const nav = event.target.closest("[data-course-module-nav]");
+			if (nav) {
+				const neighbors = getModuleNeighbors();
+				const nextModule =
+					nav.dataset.courseModuleNav === "previous"
+						? neighbors.previous
+						: neighbors.next;
+				if (!nextModule) return;
+				activeModuleId = nextModule.id;
+				renderCourse();
+			}
+		});
+
+		renderCourse();
 	});
 `;
 }
@@ -199,15 +354,20 @@ fetch("./assets/data/page.json")
 export function buildCourseCss() {
 	return `body {
 	margin: 0;
-	padding: 2rem;
+	background: #f9fbff;
 	color: #202122;
 	font-family: "Lato", "Noto Sans", "Segoe UI", Arial, sans-serif;
 	line-height: 1.5;
 }
 
 main {
+	min-height: 100vh;
+}
+
+.course-standalone {
 	margin: 0 auto;
 	max-width: 980px;
+	padding: 2rem;
 }
 
 h1,
@@ -249,6 +409,171 @@ img {
 	font-weight: 700;
 	padding: 0.55rem 1rem;
 	text-decoration: none;
+}
+
+.course-module-shell {
+	display: grid;
+	grid-template-columns: minmax(16rem, 20rem) minmax(0, 1fr);
+	min-height: 100vh;
+}
+
+.course-module-nav {
+	background: #ffffff;
+	border-right: 1px solid #d3d9e3;
+	height: 100vh;
+	overflow: auto;
+	position: sticky;
+	top: 0;
+}
+
+.course-module-nav__header {
+	border-bottom: 1px solid #d3d9e3;
+	display: grid;
+	gap: 0.15rem;
+	padding: 1rem;
+}
+
+.course-module-nav__header span {
+	color: #565a5c;
+	font-size: 0.78rem;
+	font-weight: 700;
+	text-transform: uppercase;
+}
+
+.course-module-nav__header strong {
+	line-height: 1.25;
+	overflow-wrap: anywhere;
+}
+
+.course-module-tree {
+	display: grid;
+	gap: 0.2rem;
+	list-style: none;
+	margin: 0;
+	padding: 0.5rem;
+}
+
+.course-module-tree__children {
+	border-left: 1px solid #d3d9e3;
+	margin-left: 1.15rem;
+}
+
+.course-module-tree__row {
+	align-items: center;
+	border: 1px solid transparent;
+	border-radius: 6px;
+	display: grid;
+	gap: 0.25rem;
+	grid-template-columns: 1.8rem minmax(0, 1fr);
+	min-height: 2.5rem;
+	padding: 0.2rem;
+}
+
+.course-module-tree__row.is-active {
+	background: #eef6fc;
+	border-color: #b7d7ef;
+}
+
+.course-module-tree__toggle,
+.course-module-tree__select,
+.course-chevron {
+	background: transparent;
+	border: 1px solid transparent;
+	border-radius: 6px;
+	color: #202122;
+	cursor: pointer;
+	font: inherit;
+}
+
+.course-module-tree__toggle {
+	align-items: center;
+	display: inline-flex;
+	height: 2rem;
+	justify-content: center;
+	padding: 0;
+	width: 2rem;
+}
+
+.course-module-tree__spacer {
+	display: block;
+	width: 1.8rem;
+}
+
+.course-module-tree__select {
+	line-height: 1.25;
+	overflow-wrap: anywhere;
+	padding: 0.4rem 0.45rem;
+	text-align: left;
+}
+
+.course-module-tree__toggle:hover,
+.course-module-tree__select:hover,
+.course-chevron:hover,
+.course-module-tree__toggle:focus-visible,
+.course-module-tree__select:focus-visible,
+.course-chevron:focus-visible {
+	border-color: #006fbf;
+	box-shadow: 0 0 0 3px rgba(0, 111, 191, 0.16);
+	outline: none;
+}
+
+.course-module-main {
+	min-width: 0;
+}
+
+.course-module-pager {
+	align-items: center;
+	background: #ffffff;
+	border-bottom: 1px solid #d3d9e3;
+	display: grid;
+	gap: 0.75rem;
+	grid-template-columns: auto minmax(0, 1fr) auto;
+	min-height: 3.5rem;
+	padding: 0.45rem 1rem;
+	position: sticky;
+	top: 0;
+	z-index: 10;
+}
+
+.course-chevron {
+	align-items: center;
+	display: inline-flex;
+	height: 2.35rem;
+	justify-content: center;
+	padding: 0;
+	width: 2.35rem;
+}
+
+.course-chevron:disabled {
+	color: #8f969e;
+	cursor: not-allowed;
+	opacity: 0.45;
+}
+
+.course-module-pager__title {
+	display: grid;
+	gap: 0.05rem;
+	min-width: 0;
+	text-align: center;
+}
+
+.course-module-pager__title span {
+	color: #565a5c;
+	font-size: 0.82rem;
+}
+
+.course-module-pager__title strong {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.course-module-lesson {
+	display: grid;
+	gap: 1rem;
+	margin: 0 auto;
+	max-width: 72rem;
+	padding: 1.5rem 2rem 3rem;
 }
 
 .activity-copy,
@@ -568,8 +893,21 @@ img {
 }
 
 @media (max-width: 44rem) {
-	body {
+	.course-standalone,
+	.course-module-lesson {
 		padding: 1rem;
+	}
+
+	.course-module-shell {
+		grid-template-columns: 1fr;
+	}
+
+	.course-module-nav {
+		border-bottom: 1px solid #d3d9e3;
+		border-right: 0;
+		height: auto;
+		max-height: 18rem;
+		position: static;
 	}
 
 	.course-layout {

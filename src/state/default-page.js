@@ -28,8 +28,12 @@ export const defaultPage = {
 		schemaVersion: 1,
 		locale: "en",
 		source: "D2L Core Library authoring demo",
+		courseFormat: null,
+		parentContainerSelected: false,
 		lastSaved: null,
 	},
+	modules: [],
+	activeModuleId: null,
 	blocks: [
 		{
 			id: createId("block"),

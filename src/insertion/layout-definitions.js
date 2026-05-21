@@ -334,6 +334,7 @@ export function createLayoutBlock(layoutDefinition) {
 			kind: region.kind || "content",
 			span: region.span || 1,
 			content: `${region.role} placeholder content. Edit this region on the canvas.`,
+			blocks: [],
 			order: index + 1,
 		})),
 		metadata: {

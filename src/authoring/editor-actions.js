@@ -33,7 +33,25 @@ import { getBlockLabel } from "../insertion/element-definitions.js";
  * way to locate the JSON object that backs a rendered block.
  */
 export function findBlock(pageState, blockId) {
-	return pageState.blocks.find((block) => block.id === blockId);
+	return findBlockEntry(pageState, blockId)?.block;
+}
+
+/**
+ * Inserts a block inside a layout region.
+ *
+ * @param {object} pageState - Current page JSON model to mutate.
+ * @param {string} parentBlockId - Layout block id that owns the region.
+ * @param {string} regionId - Region id that receives the new block.
+ * @param {object} block - New block to insert.
+ * @returns {boolean} Whether the block was inserted.
+ */
+export function insertBlockIntoRegion(pageState, parentBlockId, regionId, block) {
+	const parentBlock = findBlock(pageState, parentBlockId);
+	const region = parentBlock?.regions?.find((item) => item.id === regionId);
+	if (!region) return false;
+	region.blocks = Array.isArray(region.blocks) ? region.blocks : [];
+	region.blocks.push(block);
+	return true;
 }
 
 /**
@@ -133,20 +151,22 @@ export function updateBlockItemField(pageState, blockId, itemIndex, field, value
  * authoring workflow by keeping canvas controls and JSON order aligned.
  */
 export function updateBlockOrder(pageState, blockId, action) {
-	const index = pageState.blocks.findIndex((block) => block.id === blockId);
+	const entry = findBlockEntry(pageState, blockId);
+	if (!entry) return { message: null };
+	const { list, index } = entry;
 	if (index < 0) return { message: null };
 
 	if (action === "delete") {
-		const [removed] = pageState.blocks.splice(index, 1);
+		const [removed] = list.splice(index, 1);
 		return { message: `${getBlockLabel(removed)} removed` };
 	}
 
 	if (action === "up" && index > 0) {
-		[pageState.blocks[index - 1], pageState.blocks[index]] = [pageState.blocks[index], pageState.blocks[index - 1]];
+		[list[index - 1], list[index]] = [list[index], list[index - 1]];
 	}
 
-	if (action === "down" && index < pageState.blocks.length - 1) {
-		[pageState.blocks[index + 1], pageState.blocks[index]] = [pageState.blocks[index], pageState.blocks[index + 1]];
+	if (action === "down" && index < list.length - 1) {
+		[list[index + 1], list[index]] = [list[index], list[index + 1]];
 	}
 
 	return { message: null };
@@ -175,4 +195,34 @@ export function checkQuizAnswer(pageState, blockId) {
 	}
 	const option = block.options[Number(checked.value)];
 	feedback.textContent = option?.correct ? "Correct." : block.feedback;
+}
+
+function findBlockEntry(pageState, blockId) {
+	const lists = [pageState.blocks || []];
+	collectModuleBlockLists(pageState.modules || [], lists);
+	for (const list of lists) {
+		const entry = findBlockEntryInList(list, blockId);
+		if (entry) return entry;
+	}
+	return undefined;
+}
+
+function findBlockEntryInList(list = [], blockId) {
+	for (let index = 0; index < list.length; index += 1) {
+		const block = list[index];
+		if (block.id === blockId) return { block, list, index };
+		if (block.type !== "layout") continue;
+		for (const region of block.regions || []) {
+			const entry = findBlockEntryInList(region.blocks || [], blockId);
+			if (entry) return entry;
+		}
+	}
+	return undefined;
+}
+
+function collectModuleBlockLists(nodes = [], lists) {
+	nodes.forEach((node) => {
+		if (Array.isArray(node.blocks)) lists.push(node.blocks);
+		collectModuleBlockLists(node.children || [], lists);
+	});
 }

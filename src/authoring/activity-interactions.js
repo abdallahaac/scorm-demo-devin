@@ -35,10 +35,34 @@ const syncRadioMenuSelection = (menuRoot, selectedValue) => {
 	});
 };
 
-const getBlockById = (pageState, blockId, type) =>
-	pageState?.blocks?.find(
-		(block) => block.id === blockId && block.type === type,
-	);
+const getBlockById = (pageState, blockId, type) => {
+	const lists = [pageState?.blocks || []];
+	collectModuleBlockLists(pageState?.modules || [], lists);
+	for (const list of lists) {
+		const block = findBlockInList(list, blockId, type);
+		if (block) return block;
+	}
+	return undefined;
+};
+
+const findBlockInList = (list = [], blockId, type) => {
+	for (const block of list) {
+		if (block.id === blockId && block.type === type) return block;
+		if (block.type !== "layout") continue;
+		const nested = (block.regions || [])
+			.map((region) => findBlockInList(region.blocks || [], blockId, type))
+			.find(Boolean);
+		if (nested) return nested;
+	}
+	return undefined;
+};
+
+const collectModuleBlockLists = (nodes = [], lists) => {
+	nodes.forEach((node) => {
+		if (Array.isArray(node.blocks)) lists.push(node.blocks);
+		collectModuleBlockLists(node.children || [], lists);
+	});
+};
 
 const setHidden = (element, hidden) => {
 	element?.classList.toggle("is-hidden", hidden);

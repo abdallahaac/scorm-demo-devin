@@ -38,6 +38,7 @@ export const SOURCE_MODULE_FILES = [
 	"src/shared/ids.js",
 	"src/shared/object.js",
 	"src/shared/tier1-icons.js",
+	"src/state/course-structure.js",
 	"src/state/default-page.js",
 	"src/state/page-state.js",
 	"src/ui/toast.js",
