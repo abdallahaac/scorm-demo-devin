@@ -1,0 +1,20 @@
+/*
+ * styles.css
+ *
+ * Purpose:
+ * Imports the modular CSS files for the demo.
+ *
+ * Intent:
+ * This file is responsible for CSS module ordering, browser loading, and
+ * exported editor package styling because both the live demo and editable LMS
+ * package need one stable stylesheet entry point.
+ *
+ * Role in the app:
+ * - Loaded by index.html and the editable SCORM package template.
+ * - Pulls in base, authoring, insertion, SCORM export, and responsive styles.
+ */
+@import "./styles/base.css";
+@import "./styles/authoring/editor.css";
+@import "./styles/insertion/modals.css";
+@import "./styles/scorm/export.css";
+@import "./styles/responsive.css";

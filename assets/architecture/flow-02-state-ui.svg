@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
+	<title id="title">Iteration 2: state and UI relationship</title>
+	<desc id="desc">A flowchart showing pageState JSON in the center with state loading, authoring shell, block renderers, JSON panel, and localStorage around it.</desc>
+	<defs>
+		<marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+			<path d="M2,2 L10,6 L2,10 Z" fill="#496172" />
+		</marker>
+		<style>
+			text{font-family:Lato,Segoe UI,Arial,sans-serif;fill:#202122}
+			.title{font-size:34px;font-weight:800}
+			.caption{font-size:19px;fill:#5c6470}
+			.box-title{font-size:22px;font-weight:800}
+			.box-copy{font-size:17px;fill:#5c6470}
+			.arrow{stroke:#496172;stroke-width:4;fill:none;marker-end:url(#arrow)}
+		</style>
+	</defs>
+	<rect width="1200" height="720" fill="#f6f8fb" />
+	<text x="70" y="78" class="title">Iteration 2: add the live page blueprint</text>
+	<text x="70" y="114" class="caption">The UI is rebuilt from pageState JSON, so the screen and export data stay aligned.</text>
+	<g transform="translate(425 255)">
+		<rect x="0" y="0" width="350" height="180" rx="18" fill="#fff8ed" stroke="#e5bd7b" stroke-width="3" />
+		<text x="48" y="72" class="box-title">pageState JSON</text>
+		<text x="48" y="108" class="box-copy">Title, metadata, blocks,</text>
+		<text x="48" y="134" class="box-copy">layout regions, quiz data,</text>
+		<text x="48" y="160" class="box-copy">and export-ready content.</text>
+	</g>
+	<g transform="translate(80 190)">
+		<rect x="0" y="0" width="270" height="130" rx="14" fill="#ffffff" stroke="#cfd8e3" stroke-width="2" />
+		<text x="24" y="50" class="box-title">state/page-state.js</text>
+		<text x="24" y="82" class="box-copy">Loads saved draft, package</text>
+		<text x="24" y="108" class="box-copy">seed, or default page.</text>
+	</g>
+	<path class="arrow" d="M350 255 H405" />
+	<g transform="translate(80 400)">
+		<rect x="0" y="0" width="270" height="130" rx="14" fill="#ffffff" stroke="#cfd8e3" stroke-width="2" />
+		<text x="24" y="50" class="box-title">localStorage</text>
+		<text x="24" y="82" class="box-copy">Browser-only save area</text>
+		<text x="24" y="108" class="box-copy">for drafts.</text>
+	</g>
+	<path class="arrow" d="M425 390 H360" />
+	<g transform="translate(850 105)">
+		<rect x="0" y="0" width="270" height="132" rx="14" fill="#ffffff" stroke="#cfd8e3" stroke-width="2" />
+		<text x="24" y="50" class="box-title">authoring/shell.js</text>
+		<text x="24" y="82" class="box-copy">Draws toolbar, canvas,</text>
+		<text x="24" y="108" class="box-copy">JSON panel, and dialogs.</text>
+	</g>
+	<path class="arrow" d="M775 280 C820 250 820 185 850 170" />
+	<g transform="translate(850 300)">
+		<rect x="0" y="0" width="270" height="132" rx="14" fill="#ffffff" stroke="#cfd8e3" stroke-width="2" />
+		<text x="24" y="50" class="box-title">block-renderers.js</text>
+		<text x="24" y="82" class="box-copy">Turns each block into</text>
+		<text x="24" y="108" class="box-copy">editable visible content.</text>
+	</g>
+	<path class="arrow" d="M775 345 H830" />
+	<g transform="translate(850 500)">
+		<rect x="0" y="0" width="270" height="132" rx="14" fill="#ffffff" stroke="#cfd8e3" stroke-width="2" />
+		<text x="24" y="50" class="box-title">JSON panel</text>
+		<text x="24" y="82" class="box-copy">Shows the current page</text>
+		<text x="24" y="108" class="box-copy">blueprint to presenters.</text>
+	</g>
+	<path class="arrow" d="M775 420 C815 450 815 545 850 565" />
+</svg>

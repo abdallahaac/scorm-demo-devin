@@ -1,0 +1,72 @@
+/*
+ * styles/responsive.css
+ *
+ * Purpose:
+ * Keeps the demo usable on narrow screens.
+ *
+ * Intent:
+ * This file is responsible for responsive toolbar stacking, single-column
+ * workspace layout, modal grids, and layout region behavior because the
+ * presentation demo should remain readable on laptop and mobile viewports.
+ *
+ * Role in the app:
+ * - Imported last by styles.css so responsive overrides can adjust all feature areas.
+ * - Supports authoring, insertion, preview, and SCORM export surfaces.
+ */
+@media (max-width: 64rem) {
+	.topbar,
+	.status-strip {
+		align-items: flex-start;
+		flex-direction: column;
+	}
+
+	.toolbar-actions {
+		justify-content: flex-start;
+	}
+
+	.workspace {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.json-panel {
+		max-height: none;
+		position: static;
+	}
+
+	.json-output {
+		max-height: 24rem;
+	}
+}
+
+@media (max-width: 44rem) {
+	.topbar,
+	.status-strip,
+	.workspace {
+		padding-left: 0.75rem;
+		padding-right: 0.75rem;
+	}
+
+	.element-grid,
+	.field-grid,
+	.flip-card,
+	.export-package-grid {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.layout-option {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.layout-thumb {
+		width: 100%;
+	}
+
+	.layout-grid {
+		grid-template-columns: minmax(0, 1fr) !important;
+	}
+
+	.layout-region,
+	.layout-region[data-span] {
+		grid-column: auto;
+	}
+}

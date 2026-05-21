@@ -1,0 +1,133 @@
+/*
+ * styles/insertion/modals.css
+ *
+ * Purpose:
+ * Styles the Insert Element and Layouts modal contents.
+ *
+ * Intent:
+ * This file is responsible for picker grids, option rows, D2L-style thumbnails,
+ * and modal spacing because authors need clear visual choices when inserting
+ * elements, interactions, and layouts.
+ *
+ * Role in the app:
+ * - Supports src/insertion/insert-dialogs.js.
+ * - Provides fallback gallery and thumbnail patterns around D2L dialog components.
+ */
+.dialog-body {
+	display: grid;
+	gap: 1rem;
+	max-height: min(68vh, 42rem);
+	overflow: auto;
+	padding-right: 0.25rem;
+}
+
+.element-grid {
+	display: grid;
+	gap: 0.75rem;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.element-option,
+.layout-option {
+	background: #ffffff;
+	border: 1px solid var(--demo-color-border);
+	border-radius: var(--demo-radius);
+	color: inherit;
+	cursor: pointer;
+	display: grid;
+	gap: 0.75rem;
+	padding: 0.85rem;
+	text-align: left;
+	width: 100%;
+}
+
+.element-option {
+	grid-template-columns: auto minmax(0, 1fr);
+}
+
+.element-option:hover,
+.layout-option:hover,
+.element-option:focus-visible,
+.layout-option:focus-visible {
+	border-color: var(--demo-color-link);
+	box-shadow: 0 0 0 3px rgba(0, 111, 191, 0.12);
+	outline: none;
+}
+
+.element-option__icon {
+	align-items: center;
+	background: var(--demo-color-accent);
+	border-radius: var(--demo-radius);
+	display: inline-grid;
+	height: 2.35rem;
+	justify-items: center;
+	width: 2.35rem;
+}
+
+.element-option__title,
+.layout-option__title {
+	font-weight: 700;
+	margin: 0;
+}
+
+.element-option__description,
+.layout-option__description {
+	color: var(--demo-color-muted);
+	font-size: 0.9rem;
+	margin: 0.15rem 0 0;
+}
+
+.layout-category {
+	display: grid;
+	gap: 0.55rem;
+}
+
+.layout-category__title {
+	border-bottom: 1px solid var(--demo-color-border);
+	font-size: 0.9rem;
+	font-weight: 700;
+	margin: 0;
+	padding-bottom: 0.4rem;
+	text-transform: uppercase;
+}
+
+.layout-option {
+	align-items: center;
+	grid-template-columns: 8rem minmax(0, 1fr) auto;
+}
+
+.layout-thumb {
+	background: #f7f9fb;
+	border: 1px solid var(--demo-color-border);
+	border-radius: 6px;
+	display: grid;
+	gap: 0.25rem;
+	grid-template-columns: repeat(var(--thumb-columns, 1), minmax(0, 1fr));
+	height: 4.25rem;
+	padding: 0.35rem;
+}
+
+.layout-thumb span {
+	background: #d7eaf8;
+	border: 1px solid #a8cce7;
+	border-radius: 4px;
+	min-height: 0.75rem;
+}
+
+.layout-thumb span[data-span="2"] {
+	grid-column: span 2;
+}
+
+.layout-thumb span[data-span="3"] {
+	grid-column: span 3;
+}
+
+.layout-thumb span[data-kind="media"] {
+	background: #e7f4eb;
+	border-color: #b9dbc5;
+}
+
+.layout-thumb span[data-kind="callout"] {
+	background: #fff4d6;
+	border-color: #e3ca7a;
+}

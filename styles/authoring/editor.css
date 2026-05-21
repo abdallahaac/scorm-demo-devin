@@ -1,0 +1,369 @@
+/*
+ * styles/authoring/editor.css
+ *
+ * Purpose:
+ * Styles the editable canvas, JSON panel, blocks, layouts, and interactions.
+ *
+ * Intent:
+ * This file is responsible for authoring workspace layout, editable region
+ * affordances, block chrome, layout grids, and interaction previews because the
+ * JSON model needs a clear visual editing surface for presentations.
+ *
+ * Role in the app:
+ * - Supports src/authoring/shell.js and src/authoring/block-renderers.js.
+ * - Keeps fallback authoring UI visually compatible with D2L Core components.
+ */
+.workspace {
+	display: grid;
+	gap: 1rem;
+	grid-template-columns: minmax(0, 1fr) minmax(20rem, 28rem);
+	margin: 0 auto;
+	max-width: 90rem;
+	padding: 1rem;
+}
+
+.canvas-panel,
+.json-panel {
+	background: #ffffff;
+	border: 1px solid var(--demo-color-border);
+	border-radius: var(--demo-radius);
+	box-shadow: var(--demo-shadow);
+	min-width: 0;
+}
+
+.canvas-panel {
+	padding: 1rem;
+}
+
+.json-panel {
+	align-self: start;
+	max-height: calc(100vh - 8.5rem);
+	overflow: hidden;
+	position: sticky;
+	top: 5.75rem;
+}
+
+.json-panel__header {
+	align-items: center;
+	border-bottom: 1px solid var(--demo-color-border);
+	display: flex;
+	gap: 0.75rem;
+	justify-content: space-between;
+	padding: 0.85rem 1rem;
+}
+
+.json-panel__title {
+	font-size: 1rem;
+	font-weight: 700;
+	margin: 0;
+}
+
+.json-output {
+	background: #f7f9fb;
+	color: #202122;
+	font-family: Consolas, "Courier New", monospace;
+	font-size: 0.78rem;
+	line-height: 1.45;
+	margin: 0;
+	max-height: calc(100vh - 13rem);
+	overflow: auto;
+	padding: 1rem;
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.page-title {
+	border: 1px solid transparent;
+	border-radius: 6px;
+	color: var(--demo-color-text);
+	font-size: 1.9rem;
+	font-weight: 700;
+	line-height: 1.25;
+	margin: 0 0 0.75rem;
+	padding: 0.35rem 0.45rem;
+}
+
+.page-title[contenteditable="true"]:focus-visible,
+.editable[contenteditable="true"]:focus-visible {
+	border-color: var(--demo-color-link);
+	outline: 3px solid rgba(0, 111, 191, 0.2);
+	outline-offset: 2px;
+}
+
+.canvas-help {
+	color: var(--demo-color-muted);
+	margin: 0 0 1rem;
+}
+
+.editor-canvas {
+	display: grid;
+	gap: 0.85rem;
+}
+
+.content-block {
+	background: #ffffff;
+	border: 1px solid var(--demo-color-border);
+	border-radius: var(--demo-radius);
+	overflow: hidden;
+}
+
+.content-block:focus-within {
+	border-color: var(--demo-color-link);
+	box-shadow: 0 0 0 3px rgba(0, 111, 191, 0.12);
+}
+
+.content-block__header {
+	align-items: center;
+	background: #f7f9fb;
+	border-bottom: 1px solid var(--demo-color-border);
+	display: flex;
+	gap: 0.75rem;
+	justify-content: space-between;
+	min-height: 3rem;
+	padding: 0.45rem 0.65rem;
+}
+
+.content-block__label {
+	align-items: center;
+	color: var(--demo-color-muted);
+	display: flex;
+	font-size: 0.82rem;
+	font-weight: 700;
+	gap: 0.45rem;
+	text-transform: uppercase;
+}
+
+.content-block__body {
+	display: grid;
+	gap: 0.75rem;
+	padding: 1rem;
+}
+
+.preview-mode .content-block {
+	border-color: transparent;
+	box-shadow: none;
+}
+
+.preview-mode .content-block__header {
+	display: none;
+}
+
+.preview-mode .content-block__body {
+	padding: 0.75rem 0;
+}
+
+.editable {
+	border: 1px solid transparent;
+	border-radius: 6px;
+	min-height: 2.2rem;
+	padding: 0.35rem 0.45rem;
+}
+
+.editable[contenteditable="true"] {
+	cursor: text;
+}
+
+.editable[contenteditable="true"]:hover {
+	background: #f7fbff;
+	border-color: #d8e8f7;
+}
+
+.editor-heading {
+	font-size: 1.45rem;
+	font-weight: 700;
+	line-height: 1.3;
+	margin: 0;
+}
+
+.editor-paragraph {
+	color: var(--demo-color-text);
+	margin: 0;
+}
+
+.image-block {
+	display: grid;
+	gap: 0.75rem;
+}
+
+.image-frame {
+	align-items: center;
+	aspect-ratio: 16 / 7;
+	background: #f1f5f9;
+	border: 1px solid var(--demo-color-border);
+	border-radius: var(--demo-radius);
+	color: var(--demo-color-muted);
+	display: grid;
+	justify-items: center;
+	overflow: hidden;
+	padding: 1rem;
+}
+
+.image-frame img {
+	height: 100%;
+	object-fit: cover;
+	width: 100%;
+}
+
+.field-grid {
+	display: grid;
+	gap: 0.75rem;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.callout-block,
+.scenario-block,
+.reflection-block {
+	background: var(--demo-color-callout);
+	border: 1px solid #cfe5d8;
+	border-radius: var(--demo-radius);
+	padding: 1rem;
+}
+
+.callout-block__title,
+.scenario-block__title {
+	font-weight: 700;
+	margin: 0 0 0.5rem;
+}
+
+.divider-block {
+	border: 0;
+	border-top: 2px solid var(--demo-color-border);
+	margin: 0.5rem 0;
+}
+
+.layout-grid {
+	display: grid;
+	gap: 0.75rem;
+	grid-template-columns: repeat(var(--layout-columns, 1), minmax(0, 1fr));
+}
+
+.layout-region {
+	background: #f8fafc;
+	border: 1px solid var(--demo-color-border);
+	border-radius: var(--demo-radius);
+	min-height: 7rem;
+	padding: 0.85rem;
+}
+
+.layout-region[data-span="2"] {
+	grid-column: span 2;
+}
+
+.layout-region[data-span="3"] {
+	grid-column: span 3;
+}
+
+.layout-region[data-role="header"],
+.layout-region[data-role="footer"] {
+	background: #eef6fc;
+}
+
+.layout-region__label {
+	color: var(--demo-color-muted);
+	display: block;
+	font-size: 0.78rem;
+	font-weight: 700;
+	margin-bottom: 0.35rem;
+	text-transform: uppercase;
+}
+
+.interaction-editor {
+	background: #f7f9fb;
+	border: 1px dashed var(--demo-color-border-strong);
+	border-radius: var(--demo-radius);
+	display: grid;
+	gap: 0.75rem;
+	padding: 0.75rem;
+}
+
+.interaction-row {
+	background: #ffffff;
+	border: 1px solid var(--demo-color-border);
+	border-radius: var(--demo-radius);
+	display: grid;
+	gap: 0.5rem;
+	padding: 0.75rem;
+}
+
+.flip-card {
+	border: 1px solid var(--demo-color-border);
+	border-radius: var(--demo-radius);
+	display: grid;
+	gap: 0.75rem;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	padding: 0.75rem;
+}
+
+.flip-card__side {
+	background: #f8fafc;
+	border: 1px solid var(--demo-color-border);
+	border-radius: var(--demo-radius);
+	min-height: 6rem;
+	padding: 0.85rem;
+}
+
+.flip-card-button {
+	background: #ffffff;
+	border: 1px solid var(--demo-color-border);
+	border-radius: var(--demo-radius);
+	color: var(--demo-color-text);
+	cursor: pointer;
+	display: grid;
+	min-height: 8rem;
+	padding: 1rem;
+	text-align: left;
+	width: 100%;
+}
+
+.flip-card-button .back {
+	display: none;
+}
+
+.flip-card-button.is-flipped .front {
+	display: none;
+}
+
+.flip-card-button.is-flipped .back {
+	display: block;
+}
+
+.quiz-options {
+	display: grid;
+	gap: 0.5rem;
+	margin: 0;
+	padding: 0;
+}
+
+.quiz-option {
+	align-items: start;
+	display: grid;
+	gap: 0.5rem;
+	grid-template-columns: auto minmax(0, 1fr);
+	list-style: none;
+}
+
+.quiz-feedback {
+	color: var(--demo-color-muted);
+	font-weight: 700;
+	margin: 0;
+	min-height: 1.5rem;
+}
+
+.button-preview {
+	align-items: center;
+	display: flex;
+	gap: 0.75rem;
+}
+.checklist-block__items {
+	display: grid;
+	gap: 0.5rem;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.checklist-block__item {
+	align-items: center;
+	display: flex;
+	gap: 0.5rem;
+}

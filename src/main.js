@@ -1,0 +1,206 @@
+/**
+ * src/main.js
+ *
+ * Purpose:
+ * Coordinates the full browser demo after app.js starts it.
+ *
+ * Intent:
+ * This file is responsible for state ownership, global event routing, and
+ * workflow coordination because the editor needs one central controller that
+ * connects authoring UI, insertion modals, saving, preview, and SCORM export.
+ *
+ * Role in the app:
+ * - Loads the page JSON model from src/state/page-state.js.
+ * - Renders the top-level authoring shell from src/authoring/shell.js.
+ * - Delegates block mutations to src/authoring/editor-actions.js.
+ * - Creates new blocks from src/insertion/element-definitions.js and
+ *   src/insertion/layout-definitions.js.
+ * - Sends JSON and SCORM export requests to src/scorm/exporter.js.
+ *
+ * Important state:
+ * - pageState: the current JSON model for the page.
+ * - previewMode: toggles editable authoring chrome vs learner-facing preview.
+ * - appRoot: DOM node where the authoring shell is rendered.
+ */
+import { renderJson, renderShell } from "./authoring/shell.js";
+import { checkQuizAnswer, updateBlockOrder, updateEditableValue, updateInputValue } from "./authoring/editor-actions.js";
+import { createBlock, getBlockLabel } from "./insertion/element-definitions.js";
+import { createLayoutBlock, layoutDefinitions } from "./insertion/layout-definitions.js";
+import { downloadJson, downloadScormZip } from "./scorm/exporter.js";
+import { loadPageState, savePageState } from "./state/page-state.js";
+import { showToast } from "./ui/toast.js";
+
+let pageState = loadPageState();
+let previewMode = false;
+let appRoot;
+
+/**
+ * Starts the authoring demo and registers document-level event handlers.
+ *
+ * @param {object} options - Startup options.
+ * @param {HTMLElement} options.root - DOM element that receives the rendered app shell.
+ * @returns {void}
+ *
+ * This function supports the authoring workflow by creating one controller
+ * instance that keeps the JSON model, editable canvas, D2L dialogs, preview
+ * mode, save flow, and export flow in sync.
+ */
+export function startAuthoringDemo({ root }) {
+	appRoot = root;
+	document.addEventListener("click", handleClick);
+	document.addEventListener("input", handleInput);
+	document.addEventListener("change", handleInput);
+	render();
+}
+
+/**
+ * Renders the complete app shell from current state.
+ *
+ * @returns {void}
+ *
+ * This function does not mutate pageState; it translates the current state into
+ * visible UI by calling src/authoring/shell.js.
+ */
+function render() {
+	renderShell({ root: appRoot, pageState, previewMode });
+}
+
+/**
+ * Routes click events from toolbar buttons, modal options, block controls,
+ * preview interactions, and export buttons.
+ *
+ * @param {MouseEvent} event - Browser click event from document-level delegation.
+ * @returns {void}
+ *
+ * This function mutates pageState when users insert, reorder, or remove blocks.
+ * It also opens D2L dialogs and delegates SCORM downloads to src/scorm/exporter.js.
+ */
+function handleClick(event) {
+	const target = event.target;
+	if (target.closest("#saveBtn")) {
+		savePage();
+		return;
+	}
+	if (target.closest("#insertElementBtn")) {
+		document.querySelector("#insertElementDialog").opened = true;
+		return;
+	}
+	if (target.closest("#layoutBtn")) {
+		document.querySelector("#layoutDialog").opened = true;
+		return;
+	}
+	if (target.closest("#previewBtn")) {
+		previewMode = !previewMode;
+		render();
+		showToast(previewMode ? "Preview mode enabled" : "Editing mode enabled", "success");
+		return;
+	}
+	if (target.closest("#exportBtn")) {
+		document.querySelector("#exportDialog").opened = true;
+		return;
+	}
+
+	const insertElement = target.closest("[data-insert-element]");
+	if (insertElement) {
+		const block = createBlock(insertElement.dataset.insertElement);
+		pageState.blocks.push(block);
+		document.querySelector("#insertElementDialog").opened = false;
+		render();
+		showToast(`${getBlockLabel(block)} inserted`, "success");
+		return;
+	}
+
+	const insertLayout = target.closest("[data-insert-layout]");
+	if (insertLayout) {
+		const layout = layoutDefinitions.find((definition) => definition.id === insertLayout.dataset.insertLayout);
+		if (!layout) return;
+		const block = createLayoutBlock(layout);
+		pageState.blocks.push(block);
+		document.querySelector("#layoutDialog").opened = false;
+		render();
+		showToast(`${layout.title} inserted`, "success");
+		return;
+	}
+
+	const blockAction = target.closest("[data-block-action]");
+	if (blockAction) {
+		const result = updateBlockOrder(pageState, blockAction.dataset.blockId, blockAction.dataset.blockAction);
+		render();
+		if (result.message) showToast(result.message, "success");
+		return;
+	}
+
+	if (target.closest("[data-download-json]")) {
+		downloadJson(pageState, showToast);
+		return;
+	}
+
+	const zipButton = target.closest("[data-download-zip]");
+	if (zipButton) {
+		downloadScormZip(pageState, zipButton.dataset.downloadZip, showToast);
+		return;
+	}
+
+	const flipCard = target.closest("[data-flip-preview]");
+	if (flipCard) {
+		const flipped = !flipCard.classList.contains("is-flipped");
+		flipCard.classList.toggle("is-flipped", flipped);
+		flipCard.setAttribute("aria-pressed", String(flipped));
+		return;
+	}
+
+	const quizCheck = target.closest("[data-quiz-check]");
+	if (quizCheck) {
+		checkQuizAnswer(pageState, quizCheck.dataset.blockId);
+	}
+}
+
+/**
+ * Routes editable text and D2L input changes into the JSON model.
+ *
+ * @param {InputEvent|Event} event - Input/change event from the editable canvas.
+ * @returns {void}
+ *
+ * This function mutates pageState title, block fields, layout regions, or input
+ * fields, then refreshes the JSON side panel so presenters can show live data updates.
+ */
+function handleInput(event) {
+	const title = event.target.closest?.("[data-page-title]");
+	if (title) {
+		pageState.title = title.textContent.trim() || "Untitled page";
+		renderJson(pageState);
+		return;
+	}
+
+	const editable = event.target.closest?.("[data-editable]");
+	if (editable) {
+		updateEditableValue(pageState, editable, editable.textContent.trim());
+		renderJson(pageState);
+		return;
+	}
+
+	const input = event.target.closest?.("[data-input-field]");
+	if (input) {
+		updateInputValue(pageState, input);
+		renderJson(pageState);
+	}
+}
+
+/**
+ * Saves the current page JSON to localStorage.
+ *
+ * @returns {void}
+ *
+ * This function replaces pageState with the saved copy returned by
+ * savePageState so the lastSaved metadata is reflected in the toolbar and
+ * JSON panel. It supports the demo save workflow without requiring a backend.
+ */
+function savePage() {
+	try {
+		pageState = savePageState(pageState);
+		render();
+		showToast("Page saved to localStorage", "success");
+	} catch {
+		showToast("The browser blocked localStorage for this page", "critical");
+	}
+}

@@ -1,0 +1,152 @@
+/*
+ * styles/base.css
+ *
+ * Purpose:
+ * Defines global visual tokens and app shell styling.
+ *
+ * Intent:
+ * This file is responsible for typography assumptions, D2L-aligned color
+ * variables, skip link behavior, toolbar layout, and status strip styling
+ * because every authoring, insertion, preview, and export surface shares the
+ * same base UI language.
+ *
+ * Role in the app:
+ * - Imported first by styles.css.
+ * - Supports D2L Core UI by using neutral spacing, borders, and focus-friendly
+ *   surfaces around D2L web components.
+ */
+:root {
+	--demo-font-family: "Lato", "Noto Sans", "Segoe UI", Arial, sans-serif;
+	--demo-color-text: var(--d2l-color-ferrite, #202122);
+	--demo-color-muted: var(--d2l-color-galena, #565a5c);
+	--demo-color-link: var(--d2l-color-celestine, #006fbf);
+	--demo-color-surface: var(--d2l-color-regolith, #f9fbff);
+	--demo-color-border: var(--d2l-color-mica, #d3d9e3);
+	--demo-color-border-strong: var(--d2l-color-corundum, #b7c2d0);
+	--demo-color-callout: #f5faf7;
+	--demo-color-accent: #e6f2fb;
+	--demo-shadow: 0 8px 20px rgba(32, 33, 34, 0.08);
+	--demo-radius: 8px;
+	color-scheme: light;
+	font-family: var(--demo-font-family);
+}
+
+* {
+	box-sizing: border-box;
+}
+
+body {
+	margin: 0;
+	background: var(--demo-color-surface);
+	color: var(--demo-color-text);
+	font-family: var(--demo-font-family);
+	font-size: 16px;
+	line-height: 1.5;
+}
+
+button,
+input,
+textarea {
+	font: inherit;
+}
+
+.skip-link {
+	background: var(--demo-color-link);
+	color: #ffffff;
+	left: 0.75rem;
+	padding: 0.5rem 0.75rem;
+	position: absolute;
+	top: -4rem;
+	z-index: 10000;
+}
+
+.skip-link:focus {
+	top: 0.75rem;
+}
+
+.architecture-shortcut {
+	background: #ffffff;
+	border: 1px solid var(--demo-color-border);
+	border-radius: 999px;
+	bottom: 1rem;
+	box-shadow: var(--demo-shadow);
+	color: var(--demo-color-link);
+	font-size: 0.88rem;
+	font-weight: 700;
+	padding: 0.55rem 0.85rem;
+	position: fixed;
+	right: 1rem;
+	text-decoration: none;
+	z-index: 30;
+}
+
+.architecture-shortcut:focus-visible,
+.architecture-shortcut:hover {
+	border-color: var(--demo-color-link);
+	outline: 3px solid rgba(0, 111, 191, 0.18);
+	outline-offset: 2px;
+}
+
+.app-shell {
+	min-height: 100vh;
+}
+
+.topbar {
+	align-items: center;
+	background: #ffffff;
+	border-bottom: 1px solid var(--demo-color-border);
+	display: flex;
+	gap: 1rem;
+	justify-content: space-between;
+	min-height: 4.5rem;
+	padding: 0.75rem 1.5rem;
+	position: sticky;
+	top: 0;
+	z-index: 20;
+}
+
+.brand {
+	min-width: 14rem;
+}
+
+.brand__eyebrow {
+	color: var(--demo-color-muted);
+	font-size: 0.8rem;
+	font-weight: 700;
+	margin: 0;
+	text-transform: uppercase;
+}
+
+.brand__title {
+	color: var(--demo-color-text);
+	font-size: 1.2rem;
+	font-weight: 700;
+	line-height: 1.25;
+	margin: 0.15rem 0 0;
+}
+
+.toolbar-actions,
+.block-actions,
+.export-actions {
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.35rem;
+	justify-content: flex-end;
+}
+
+.status-strip {
+	align-items: center;
+	background: #ffffff;
+	border-bottom: 1px solid var(--demo-color-border);
+	color: var(--demo-color-muted);
+	display: flex;
+	gap: 0.75rem;
+	justify-content: space-between;
+	min-height: 2.75rem;
+	padding: 0.5rem 1.5rem;
+}
+
+.status-strip strong {
+	color: var(--demo-color-text);
+}

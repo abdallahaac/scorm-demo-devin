@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Codebase Architecture Map - D2L SCORM Authoring Demo</title>
+		<link rel="stylesheet" href="./styles/architecture.css" />
+	</head>
+	<body>
+		<header class="map-topbar">
+			<a class="map-brand" href="./index.html">
+				<span class="map-brand__eyebrow">D2L SCORM authoring demo</span>
+				<span class="map-brand__title">Codebase architecture map</span>
+			</a>
+			<nav class="map-nav" aria-label="Architecture sections">
+				<a href="#overview">Overview</a>
+				<a href="#mindmap">Mind map</a>
+				<a href="#complete-flow">Complete flow</a>
+				<a href="#image-series">Flowchart images</a>
+				<a href="./index.html">Back to editor</a>
+			</nav>
+		</header>
+
+		<main>
+			<section id="overview" class="hero-section">
+				<div class="hero-copy">
+					<p class="eyebrow">Layman-friendly system tour</p>
+					<h1>The app is a page builder that turns editable blocks into a SCORM package.</h1>
+					<p class="lead">
+						Think of the codebase as a small workshop. The editor lets a person arrange learning content, the JSON model is the blueprint, and the SCORM exporter wraps that blueprint into a zip file an LMS can import.
+					</p>
+					<div class="hero-actions" aria-label="Primary architecture links">
+						<a href="#complete-flow">See the full flowchart</a>
+						<a href="#module-guide">Browse the file guide</a>
+					</div>
+				</div>
+				<div class="hero-map" aria-label="Architecture overview">
+					<div class="hero-node hero-node--start">
+						<span>Browser opens</span>
+						<strong>index.html</strong>
+					</div>
+					<div class="hero-node">
+						<span>Startup</span>
+						<strong>app.js to src/main.js</strong>
+					</div>
+					<div class="hero-node hero-node--core">
+						<span>Source of truth</span>
+						<strong>pageState JSON</strong>
+					</div>
+					<div class="hero-node">
+						<span>Author sees</span>
+						<strong>canvas, toolbar, JSON panel</strong>
+					</div>
+					<div class="hero-node">
+						<span>Output becomes</span>
+						<strong>page.json or SCORM zip</strong>
+					</div>
+				</div>
+			</section>
+
+			<section class="key-strip" aria-label="Plain language legend">
+				<div>
+					<strong>JSON model</strong>
+					<span>The saved recipe for the page: title, blocks, layout regions, quiz answers, and metadata.</span>
+				</div>
+				<div>
+					<strong>Renderer</strong>
+					<span>A translator that turns JSON into visible HTML on the screen.</span>
+				</div>
+				<div>
+					<strong>SCORM package</strong>
+					<span>A zip file with an LMS manifest, page data, JavaScript, CSS, and the D2L component bundle.</span>
+				</div>
+			</section>
+
+			<section id="mindmap" class="content-section">
+				<div class="section-heading">
+					<p class="eyebrow">Mind map</p>
+					<h2>The whole codebase in one mental model</h2>
+					<p>
+						The center of the app is not a database or backend. It is one live JavaScript object called <code>pageState</code>. Almost every file either creates it, displays it, changes it, saves it, or exports it.
+					</p>
+				</div>
+
+				<div class="mind-map" aria-label="Mind map of codebase areas">
+					<div class="mind-center">
+						<span>Center</span>
+						<strong>pageState JSON</strong>
+						<small>The page blueprint every workflow uses.</small>
+					</div>
+					<section class="mind-branch mind-branch--startup">
+						<h3>Startup</h3>
+						<p><code>index.html</code> loads CSS, the D2L bundle, and <code>app.js</code>.</p>
+						<p><code>app.js</code> finds <code>#app</code> and starts <code>src/main.js</code>.</p>
+					</section>
+					<section class="mind-branch mind-branch--state">
+						<h3>State</h3>
+						<p><code>state/page-state.js</code> loads a saved draft, an exported package seed, or the default page.</p>
+						<p><code>state/default-page.js</code> supplies the first example page.</p>
+					</section>
+					<section class="mind-branch mind-branch--authoring">
+						<h3>Authoring UI</h3>
+						<p><code>authoring/shell.js</code> draws the toolbar, canvas, JSON panel, and dialogs.</p>
+						<p><code>authoring/block-renderers.js</code> turns each block into visible editable content.</p>
+					</section>
+					<section class="mind-branch mind-branch--actions">
+						<h3>User actions</h3>
+						<p><code>src/main.js</code> listens for clicks, typing, picker choices, preview, save, and export.</p>
+						<p><code>authoring/editor-actions.js</code> updates, reorders, removes, and checks blocks.</p>
+					</section>
+					<section class="mind-branch mind-branch--insertion">
+						<h3>Insert library</h3>
+						<p><code>insertion/element-definitions.js</code> lists text, headings, images, quizzes, tabs, and more.</p>
+						<p><code>insertion/layout-definitions.js</code> lists page layouts and editable regions.</p>
+					</section>
+					<section class="mind-branch mind-branch--export">
+						<h3>SCORM export</h3>
+						<p><code>scorm/exporter.js</code> gathers files and starts downloads.</p>
+						<p><code>manifest.js</code>, <code>course-runtime-template.js</code>, and <code>zip.js</code> build the package.</p>
+					</section>
+					<section class="mind-branch mind-branch--support">
+						<h3>Support pieces</h3>
+						<p><code>shared/html.js</code> escapes user text so generated HTML stays safe.</p>
+						<p><code>shared/ids.js</code>, <code>shared/object.js</code>, and <code>ui/toast.js</code> provide small helpers.</p>
+					</section>
+					<section class="mind-branch mind-branch--styles">
+						<h3>Styles and server</h3>
+						<p><code>styles.css</code> imports modular CSS for the app surfaces.</p>
+						<p><code>server.cjs</code> serves the files locally so modules and export reads work over HTTP.</p>
+					</section>
+				</div>
+			</section>
+
+			<section id="complete-flow" class="content-section flow-section">
+				<div class="section-heading">
+					<p class="eyebrow">Complete flowchart</p>
+					<h2>From opening the page to downloading a SCORM zip</h2>
+					<p>
+						This is the main path through the codebase. Read it left to right: each row shows what the user does, which code responds, and what changes inside the page blueprint.
+					</p>
+				</div>
+
+				<div class="flow-grid" aria-label="Complete application flow">
+					<div class="flow-lane flow-lane--user">
+						<h3>User and browser</h3>
+						<ol>
+							<li>Open <code>index.html</code>.</li>
+							<li>Edit text, insert blocks, preview, save, or export.</li>
+							<li>Receive <code>page.json</code> or a SCORM zip download.</li>
+						</ol>
+					</div>
+					<div class="flow-lane flow-lane--entry">
+						<h3>Entry files</h3>
+						<ol>
+							<li><code>index.html</code> loads the D2L web component bundle.</li>
+							<li><code>styles.css</code> pulls in all app styling.</li>
+							<li><code>app.js</code> starts the authoring controller.</li>
+						</ol>
+					</div>
+					<div class="flow-lane flow-lane--controller">
+						<h3>Main controller</h3>
+						<ol>
+							<li><code>src/main.js</code> loads <code>pageState</code>.</li>
+							<li>It registers click, input, and change listeners once.</li>
+							<li>It re-renders after meaningful changes.</li>
+						</ol>
+					</div>
+					<div class="flow-lane flow-lane--render">
+						<h3>Render layer</h3>
+						<ol>
+							<li><code>shell.js</code> draws the main screen.</li>
+							<li><code>block-renderers.js</code> draws each block type.</li>
+							<li><code>insert-dialogs.js</code> and <code>export-dialog.js</code> draw modal content.</li>
+						</ol>
+					</div>
+					<div class="flow-lane flow-lane--state">
+						<h3>Data layer</h3>
+						<ol>
+							<li><code>page-state.js</code> loads and saves drafts.</li>
+							<li><code>editor-actions.js</code> changes the correct block or nested item.</li>
+							<li>The JSON side panel mirrors the live model.</li>
+						</ol>
+					</div>
+					<div class="flow-lane flow-lane--export">
+						<h3>Export layer</h3>
+						<ol>
+							<li><code>package-config.js</code> says what files belong in each package.</li>
+							<li><code>exporter.js</code> reads local source files and generated templates.</li>
+							<li><code>manifest.js</code> writes the LMS manifest.</li>
+							<li><code>zip.js</code> turns everything into one downloadable zip.</li>
+						</ol>
+					</div>
+				</div>
+			</section>
+
+			<section class="content-section">
+				<div class="section-heading">
+					<p class="eyebrow">Workflows</p>
+					<h2>The three big journeys</h2>
+				</div>
+				<div class="journey-grid">
+					<article>
+						<h3>1. Editing content</h3>
+						<p>The user types directly on the canvas. The browser event bubbles up to <code>src/main.js</code>, which asks <code>editor-actions.js</code> to place the new text into the right JSON field. The canvas does not keep its own secret copy of content.</p>
+					</article>
+					<article>
+						<h3>2. Adding content or layouts</h3>
+						<p>The user chooses an item from a dialog. The selected item is matched to a definition in <code>insertion/</code>. A new JSON block is created with starter text, pushed into <code>pageState.blocks</code>, and rendered on the canvas.</p>
+					</article>
+					<article>
+						<h3>3. Exporting a package</h3>
+						<p>The user chooses editable or production export. The exporter gathers the current JSON, generates package files, includes the D2L bundle, writes a manifest, and asks the browser to download a zip.</p>
+					</article>
+				</div>
+			</section>
+
+			<section id="image-series" class="content-section image-series">
+				<div class="section-heading">
+					<p class="eyebrow">Flowchart image series</p>
+					<h2>Same architecture, increasing detail</h2>
+					<p>
+						These SVG images are separate assets in <code>assets/architecture/</code>. They begin with the simplest story and add more of the real codebase at each step.
+					</p>
+				</div>
+				<div class="image-grid">
+					<figure>
+						<img src="./assets/architecture/flow-01-entry.svg" alt="Iteration 1 flowchart showing browser, index, app startup, and visible editor." />
+						<figcaption><strong>Iteration 1:</strong> The shortest path from browser to editor.</figcaption>
+					</figure>
+					<figure>
+						<img src="./assets/architecture/flow-02-state-ui.svg" alt="Iteration 2 flowchart adding pageState JSON, authoring shell, block renderers, JSON panel, and localStorage." />
+						<figcaption><strong>Iteration 2:</strong> Adds the live JSON blueprint and the user interface.</figcaption>
+					</figure>
+					<figure>
+						<img src="./assets/architecture/flow-03-authoring-actions.svg" alt="Iteration 3 flowchart showing clicks, typing, insert definitions, editor actions, and re-rendering." />
+						<figcaption><strong>Iteration 3:</strong> Adds editing, inserting, moving, deleting, and preview checks.</figcaption>
+					</figure>
+					<figure>
+						<img src="./assets/architecture/flow-04-export-paths.svg" alt="Iteration 4 flowchart showing export dialog, package config, manifest, templates, zip writer, and two output package types." />
+						<figcaption><strong>Iteration 4:</strong> Adds both export paths and the package builder.</figcaption>
+					</figure>
+					<figure>
+						<img src="./assets/architecture/flow-05-full-architecture.svg" alt="Iteration 5 complete codebase architecture flowchart showing browser, controller, UI modules, state, insertion, helpers, CSS, server, and SCORM export modules." />
+						<figcaption><strong>Iteration 5:</strong> Full codebase map with every major module group.</figcaption>
+					</figure>
+				</div>
+			</section>
+
+			<section id="module-guide" class="content-section module-guide">
+				<div class="section-heading">
+					<p class="eyebrow">File guide</p>
+					<h2>What every important file is responsible for</h2>
+					<p>
+						This guide avoids heavy implementation jargon. Each row explains the job a file performs in the running app.
+					</p>
+				</div>
+				<div class="table-wrap">
+					<table>
+						<thead>
+							<tr>
+								<th scope="col">File or folder</th>
+								<th scope="col">Plain-language job</th>
+								<th scope="col">What it passes along</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td><code>index.html</code></td>
+								<td>The browser doorway for the live editor.</td>
+								<td>Loads CSS, D2L components, <code>#app</code>, toast, and <code>app.js</code>.</td>
+							</tr>
+							<tr>
+								<td><code>app.js</code></td>
+								<td>The small starter switch.</td>
+								<td>Hands the <code>#app</code> element to <code>startAuthoringDemo()</code>.</td>
+							</tr>
+							<tr>
+								<td><code>src/main.js</code></td>
+								<td>The traffic controller for the editor.</td>
+								<td>Routes user events to renderers, action helpers, insertion factories, state saving, and exporters.</td>
+							</tr>
+							<tr>
+								<td><code>src/state/</code></td>
+								<td>The place that decides which page blueprint to use.</td>
+								<td>Returns a cloned default page, a saved browser draft, or a package-seeded page.</td>
+							</tr>
+							<tr>
+								<td><code>src/authoring/shell.js</code></td>
+								<td>The frame around the editor.</td>
+								<td>Builds toolbar, status strip, canvas, JSON panel, and hidden dialogs.</td>
+							</tr>
+							<tr>
+								<td><code>src/authoring/block-renderers.js</code></td>
+								<td>The block translator.</td>
+								<td>Turns JSON blocks into editable HTML and D2L components.</td>
+							</tr>
+							<tr>
+								<td><code>src/authoring/editor-actions.js</code></td>
+								<td>The changer for existing blocks.</td>
+								<td>Updates text, input values, quiz feedback, block order, and block deletion.</td>
+							</tr>
+							<tr>
+								<td><code>src/insertion/element-definitions.js</code></td>
+								<td>The menu of content and interaction blocks.</td>
+								<td>Creates default JSON for headings, text, images, callouts, tabs, quizzes, checklists, and more.</td>
+							</tr>
+							<tr>
+								<td><code>src/insertion/layout-definitions.js</code></td>
+								<td>The menu of layout shapes.</td>
+								<td>Creates layout blocks with regions, spans, roles, and starter content.</td>
+							</tr>
+							<tr>
+								<td><code>src/insertion/insert-dialogs.js</code></td>
+								<td>The picker windows.</td>
+								<td>Shows insertable elements and layouts with data attributes that <code>main.js</code> can read.</td>
+							</tr>
+							<tr>
+								<td><code>src/scorm/export-dialog.js</code></td>
+								<td>The export choice window.</td>
+								<td>Shows editable package and production package options plus included file lists.</td>
+							</tr>
+							<tr>
+								<td><code>src/scorm/exporter.js</code></td>
+								<td>The packager coordinator.</td>
+								<td>Collects JSON, source files, generated files, and the D2L bundle before calling the zip writer.</td>
+							</tr>
+							<tr>
+								<td><code>src/scorm/course-runtime-template.js</code></td>
+								<td>The package template maker.</td>
+								<td>Generates production HTML, editable package HTML, runtime JavaScript, and course CSS.</td>
+							</tr>
+							<tr>
+								<td><code>src/scorm/manifest.js</code></td>
+								<td>The LMS table of contents.</td>
+								<td>Generates <code>imsmanifest.xml</code> so the LMS knows the entry file and package files.</td>
+							</tr>
+							<tr>
+								<td><code>src/scorm/zip.js</code></td>
+								<td>The dependency-free zip machine.</td>
+								<td>Turns named files into one downloadable <code>.zip</code> blob in the browser.</td>
+							</tr>
+							<tr>
+								<td><code>src/shared/</code></td>
+								<td>Small reusable safety helpers.</td>
+								<td>Escapes HTML, creates ids, and clones plain JSON objects.</td>
+							</tr>
+							<tr>
+								<td><code>src/ui/toast.js</code></td>
+								<td>Small feedback messages.</td>
+								<td>Shows save, insert, preview, and export status in the D2L toast.</td>
+							</tr>
+							<tr>
+								<td><code>styles/</code></td>
+								<td>The visual layout for the app.</td>
+								<td>Separates base shell, editor canvas, insertion dialogs, export dialog, and responsive rules.</td>
+							</tr>
+							<tr>
+								<td><code>server.cjs</code></td>
+								<td>The local file server.</td>
+								<td>Serves modules, CSS, SVG, JSON, and the D2L bundle with correct file types.</td>
+							</tr>
+							<tr>
+								<td><code>brightspace-core-bundle.js</code></td>
+								<td>The local D2L component library bundle.</td>
+								<td>Provides custom elements such as D2L buttons, dialogs, tabs, alerts, inputs, and icons.</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</section>
+
+			<section class="content-section package-section">
+				<div class="section-heading">
+					<p class="eyebrow">Package anatomy</p>
+					<h2>Why there are two SCORM export types</h2>
+				</div>
+				<div class="package-grid">
+					<article>
+						<h3>Editable LMS package</h3>
+						<p>Use this when the exported package should still behave like the authoring tool. It includes the source modules, authoring CSS, current page JSON, and a seeded editor entry page.</p>
+						<ul>
+							<li>Includes <code>app.js</code>, <code>src/</code>, and <code>styles/</code>.</li>
+							<li>Stores the current page in <code>assets/data/page.json</code>.</li>
+							<li>Embeds the page seed into generated <code>index.html</code>.</li>
+						</ul>
+					</article>
+					<article>
+						<h3>Production package</h3>
+						<p>Use this when the page is ready for learners. It removes the authoring interface and ships only a compact runtime that renders the saved JSON.</p>
+						<ul>
+							<li>Includes <code>assets/js/runtime.js</code> and <code>assets/css/course.css</code>.</li>
+							<li>Loads <code>assets/data/page.json</code> at runtime.</li>
+							<li>Still includes the D2L bundle for learner-facing components.</li>
+						</ul>
+					</article>
+				</div>
+			</section>
+		</main>
+	</body>
+</html>

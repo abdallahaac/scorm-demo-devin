@@ -1,0 +1,116 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="900" viewBox="0 0 1400 900" role="img" aria-labelledby="title desc">
+	<title id="title">Iteration 5: full codebase architecture</title>
+	<desc id="desc">A complete architecture flowchart showing browser entry, main controller, authoring modules, insertion modules, state modules, shared helpers, styles, server, and SCORM export modules.</desc>
+	<defs>
+		<marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+			<path d="M2,2 L10,6 L2,10 Z" fill="#496172" />
+		</marker>
+		<style>
+			text{font-family:Lato,Segoe UI,Arial,sans-serif;fill:#202122}
+			.title{font-size:34px;font-weight:800}
+			.caption{font-size:18px;fill:#5c6470}
+			.group-title{font-size:20px;font-weight:800}
+			.item{font-size:15px;fill:#46515d}
+			.core{font-size:22px;font-weight:800}
+			.arrow{stroke:#496172;stroke-width:3.5;fill:none;marker-end:url(#arrow)}
+			.light-arrow{stroke:#92a1b0;stroke-width:2.5;fill:none;marker-end:url(#arrow)}
+		</style>
+	</defs>
+	<rect width="1400" height="900" fill="#f6f8fb" />
+	<text x="60" y="66" class="title">Iteration 5: full codebase map</text>
+	<text x="60" y="100" class="caption">Every major module group, arranged by the job it performs.</text>
+	<g transform="translate(60 145)">
+		<rect x="0" y="0" width="240" height="120" rx="16" fill="#ffffff" stroke="#cfd8e3" stroke-width="2" />
+		<text x="24" y="42" class="group-title">Browser entry</text>
+		<text x="24" y="72" class="item">index.html</text>
+		<text x="24" y="96" class="item">brightspace-core-bundle.js</text>
+	</g>
+	<path class="arrow" d="M300 205 H375" />
+	<g transform="translate(390 145)">
+		<rect x="0" y="0" width="240" height="120" rx="16" fill="#ffffff" stroke="#cfd8e3" stroke-width="2" />
+		<text x="24" y="42" class="group-title">Startup</text>
+		<text x="24" y="72" class="item">app.js</text>
+		<text x="24" y="96" class="item">startAuthoringDemo()</text>
+	</g>
+	<path class="arrow" d="M630 205 H705" />
+	<g transform="translate(720 120)">
+		<rect x="0" y="0" width="270" height="170" rx="18" fill="#eef6fc" stroke="#8bbfe5" stroke-width="3" />
+		<text x="24" y="48" class="group-title">Main controller</text>
+		<text x="24" y="80" class="item">src/main.js</text>
+		<text x="24" y="106" class="item">click and input routing</text>
+		<text x="24" y="132" class="item">preview, save, export</text>
+	</g>
+	<path class="arrow" d="M990 205 H1070" />
+	<g transform="translate(1085 120)">
+		<rect x="0" y="0" width="255" height="170" rx="18" fill="#fff8ed" stroke="#e5bd7b" stroke-width="3" />
+		<text x="24" y="50" class="core">pageState JSON</text>
+		<text x="24" y="84" class="item">The page blueprint</text>
+		<text x="24" y="110" class="item">title, metadata, blocks</text>
+		<text x="24" y="136" class="item">saved and exported</text>
+	</g>
+	<g transform="translate(60 365)">
+		<rect x="0" y="0" width="300" height="165" rx="16" fill="#ffffff" stroke="#cfd8e3" stroke-width="2" />
+		<text x="24" y="42" class="group-title">Authoring renderers</text>
+		<text x="24" y="72" class="item">authoring/shell.js</text>
+		<text x="24" y="98" class="item">authoring/block-renderers.js</text>
+		<text x="24" y="124" class="item">insertion/insert-dialogs.js</text>
+		<text x="24" y="150" class="item">scorm/export-dialog.js</text>
+	</g>
+	<path class="arrow" d="M720 250 C530 310 390 360 360 420" />
+	<path class="light-arrow" d="M1085 245 C780 310 500 350 360 430" />
+	<g transform="translate(405 365)">
+		<rect x="0" y="0" width="300" height="165" rx="16" fill="#ffffff" stroke="#cfd8e3" stroke-width="2" />
+		<text x="24" y="42" class="group-title">Insert libraries</text>
+		<text x="24" y="72" class="item">element-definitions.js</text>
+		<text x="24" y="98" class="item">layout-definitions.js</text>
+		<text x="24" y="124" class="item">block labels and icons</text>
+		<text x="24" y="150" class="item">default block JSON</text>
+	</g>
+	<path class="arrow" d="M800 290 C690 330 620 350 610 365" />
+	<path class="light-arrow" d="M705 448 H720" />
+	<g transform="translate(750 365)">
+		<rect x="0" y="0" width="300" height="165" rx="16" fill="#ffffff" stroke="#cfd8e3" stroke-width="2" />
+		<text x="24" y="42" class="group-title">State and actions</text>
+		<text x="24" y="72" class="item">state/page-state.js</text>
+		<text x="24" y="98" class="item">state/default-page.js</text>
+		<text x="24" y="124" class="item">authoring/editor-actions.js</text>
+		<text x="24" y="150" class="item">localStorage</text>
+	</g>
+	<path class="arrow" d="M875 290 V350" />
+	<path class="light-arrow" d="M1050 445 C1125 420 1110 320 1105 292" />
+	<g transform="translate(1095 365)">
+		<rect x="0" y="0" width="245" height="165" rx="16" fill="#ffffff" stroke="#cfd8e3" stroke-width="2" />
+		<text x="24" y="42" class="group-title">Feedback and helpers</text>
+		<text x="24" y="72" class="item">ui/toast.js</text>
+		<text x="24" y="98" class="item">shared/html.js</text>
+		<text x="24" y="124" class="item">shared/ids.js</text>
+		<text x="24" y="150" class="item">shared/object.js</text>
+	</g>
+	<path class="arrow" d="M990 250 C1140 305 1210 340 1215 365" />
+	<g transform="translate(60 650)">
+		<rect x="0" y="0" width="300" height="165" rx="16" fill="#ffffff" stroke="#cfd8e3" stroke-width="2" />
+		<text x="24" y="42" class="group-title">Styles</text>
+		<text x="24" y="72" class="item">styles.css</text>
+		<text x="24" y="98" class="item">base, editor, modals</text>
+		<text x="24" y="124" class="item">export and responsive CSS</text>
+	</g>
+	<path class="light-arrow" d="M190 650 C190 590 190 555 210 530" />
+	<g transform="translate(405 650)">
+		<rect x="0" y="0" width="300" height="165" rx="16" fill="#ffffff" stroke="#cfd8e3" stroke-width="2" />
+		<text x="24" y="42" class="group-title">Local serving</text>
+		<text x="24" y="72" class="item">server.cjs</text>
+		<text x="24" y="98" class="item">static files over HTTP</text>
+		<text x="24" y="124" class="item">safe path resolution</text>
+		<text x="24" y="150" class="item">MIME types for modules</text>
+	</g>
+	<g transform="translate(750 650)">
+		<rect x="0" y="0" width="590" height="165" rx="16" fill="#ffffff" stroke="#cfd8e3" stroke-width="2" />
+		<text x="24" y="42" class="group-title">SCORM export system</text>
+		<text x="24" y="72" class="item">package-config.js lists files for editor and production packages</text>
+		<text x="24" y="98" class="item">exporter.js gathers JSON, source files, templates, and D2L bundle</text>
+		<text x="24" y="124" class="item">manifest.js writes imsmanifest.xml, course-runtime-template.js writes package files</text>
+		<text x="24" y="150" class="item">zip.js builds the downloadable zip</text>
+	</g>
+	<path class="arrow" d="M910 530 V635" />
+	<path class="light-arrow" d="M1180 530 C1150 585 1115 610 1060 635" />
+</svg>

@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
+	<title id="title">Iteration 1: shortest startup path</title>
+	<desc id="desc">A simple flowchart showing the browser opening index.html, loading app.js, starting src/main.js, and showing the editor.</desc>
+	<defs>
+		<marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+			<path d="M2,2 L10,6 L2,10 Z" fill="#496172" />
+		</marker>
+		<style>
+			text{font-family:Lato,Segoe UI,Arial,sans-serif;fill:#202122}
+			.title{font-size:36px;font-weight:800}
+			.caption{font-size:20px;fill:#5c6470}
+			.box-title{font-size:24px;font-weight:800}
+			.box-copy{font-size:18px;fill:#5c6470}
+			.badge{font-size:16px;font-weight:800;fill:#ffffff}
+			.arrow{stroke:#496172;stroke-width:4;fill:none;marker-end:url(#arrow)}
+		</style>
+	</defs>
+	<rect width="1200" height="720" fill="#f6f8fb" />
+	<text x="70" y="80" class="title">Iteration 1: the shortest path</text>
+	<text x="70" y="118" class="caption">From opening the page to seeing the editor.</text>
+	<g transform="translate(70 210)">
+		<rect x="0" y="0" width="210" height="160" rx="16" fill="#ffffff" stroke="#cfd8e3" stroke-width="2" />
+		<rect x="0" y="0" width="210" height="42" rx="16" fill="#16805b" />
+		<text x="22" y="28" class="badge">1</text>
+		<text x="28" y="82" class="box-title">Browser</text>
+		<text x="28" y="116" class="box-copy">User opens the</text>
+		<text x="28" y="142" class="box-copy">demo page.</text>
+	</g>
+	<path class="arrow" d="M300 290 H410" />
+	<g transform="translate(430 210)">
+		<rect x="0" y="0" width="240" height="160" rx="16" fill="#ffffff" stroke="#cfd8e3" stroke-width="2" />
+		<rect x="0" y="0" width="240" height="42" rx="16" fill="#006fbf" />
+		<text x="22" y="28" class="badge">2</text>
+		<text x="28" y="82" class="box-title">index.html</text>
+		<text x="28" y="116" class="box-copy">Loads CSS, D2L</text>
+		<text x="28" y="142" class="box-copy">bundle, and app.js.</text>
+	</g>
+	<path class="arrow" d="M690 290 H800" />
+	<g transform="translate(820 210)">
+		<rect x="0" y="0" width="300" height="160" rx="16" fill="#ffffff" stroke="#cfd8e3" stroke-width="2" />
+		<rect x="0" y="0" width="300" height="42" rx="16" fill="#a76500" />
+		<text x="22" y="28" class="badge">3</text>
+		<text x="28" y="82" class="box-title">app.js to main.js</text>
+		<text x="28" y="116" class="box-copy">Finds #app and starts</text>
+		<text x="28" y="142" class="box-copy">the editor controller.</text>
+	</g>
+	<path class="arrow" d="M970 390 V460" />
+	<g transform="translate(335 475)">
+		<rect x="0" y="0" width="530" height="125" rx="16" fill="#ffffff" stroke="#cfd8e3" stroke-width="2" />
+		<rect x="0" y="0" width="530" height="42" rx="16" fill="#6954c9" />
+		<text x="22" y="28" class="badge">4</text>
+		<text x="28" y="82" class="box-title">Visible editor</text>
+		<text x="250" y="82" class="box-copy">Toolbar, canvas, JSON panel, and dialogs render from one page blueprint.</text>
+	</g>
+</svg>

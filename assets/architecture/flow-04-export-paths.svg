@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
+	<title id="title">Iteration 4: SCORM export paths</title>
+	<desc id="desc">A flowchart showing the export dialog leading to package config, exporter, manifest, templates, zip writer, and editable or production SCORM package downloads.</desc>
+	<defs>
+		<marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+			<path d="M2,2 L10,6 L2,10 Z" fill="#496172" />
+		</marker>
+		<style>
+			text{font-family:Lato,Segoe UI,Arial,sans-serif;fill:#202122}
+			.title{font-size:34px;font-weight:800}
+			.caption{font-size:19px;fill:#5c6470}
+			.box-title{font-size:21px;font-weight:800}
+			.box-copy{font-size:16px;fill:#5c6470}
+			.arrow{stroke:#496172;stroke-width:4;fill:none;marker-end:url(#arrow)}
+		</style>
+	</defs>
+	<rect width="1200" height="720" fill="#f6f8fb" />
+	<text x="70" y="78" class="title">Iteration 4: add SCORM export</text>
+	<text x="70" y="114" class="caption">The current JSON blueprint is packaged two ways: editable for reviewers or production for learners.</text>
+	<g transform="translate(70 270)">
+		<rect x="0" y="0" width="245" height="145" rx="16" fill="#ffffff" stroke="#cfd8e3" stroke-width="2" />
+		<text x="24" y="55" class="box-title">Export dialog</text>
+		<text x="24" y="88" class="box-copy">User chooses editable</text>
+		<text x="24" y="114" class="box-copy">or production package.</text>
+	</g>
+	<path class="arrow" d="M315 342 H400" />
+	<g transform="translate(420 270)">
+		<rect x="0" y="0" width="270" height="145" rx="16" fill="#eef6fc" stroke="#8bbfe5" stroke-width="3" />
+		<text x="24" y="55" class="box-title">exporter.js</text>
+		<text x="24" y="88" class="box-copy">Collects pageState and</text>
+		<text x="24" y="114" class="box-copy">all package files.</text>
+	</g>
+	<path class="arrow" d="M690 342 H765" />
+	<g transform="translate(785 98)">
+		<rect x="0" y="0" width="330" height="105" rx="14" fill="#ffffff" stroke="#cfd8e3" stroke-width="2" />
+		<text x="24" y="44" class="box-title">package-config.js</text>
+		<text x="24" y="74" class="box-copy">Lists files for each package type.</text>
+	</g>
+	<path class="arrow" d="M785 150 C720 180 700 235 690 290" />
+	<g transform="translate(785 245)">
+		<rect x="0" y="0" width="330" height="105" rx="14" fill="#ffffff" stroke="#cfd8e3" stroke-width="2" />
+		<text x="24" y="44" class="box-title">manifest.js</text>
+		<text x="24" y="74" class="box-copy">Builds imsmanifest.xml for LMS import.</text>
+	</g>
+	<g transform="translate(785 392)">
+		<rect x="0" y="0" width="330" height="105" rx="14" fill="#ffffff" stroke="#cfd8e3" stroke-width="2" />
+		<text x="24" y="44" class="box-title">course-runtime-template.js</text>
+		<text x="24" y="74" class="box-copy">Generates HTML, JS, and CSS.</text>
+	</g>
+	<g transform="translate(785 540)">
+		<rect x="0" y="0" width="330" height="105" rx="14" fill="#ffffff" stroke="#cfd8e3" stroke-width="2" />
+		<text x="24" y="44" class="box-title">zip.js</text>
+		<text x="24" y="74" class="box-copy">Creates one downloadable zip blob.</text>
+	</g>
+	<path class="arrow" d="M950 350 V382" />
+	<path class="arrow" d="M950 497 V530" />
+	<path class="arrow" d="M950 645 C950 680 730 680 710 610" />
+	<g transform="translate(260 540)">
+		<rect x="0" y="0" width="220" height="110" rx="14" fill="#f5fbf8" stroke="#9fd0bd" stroke-width="3" />
+		<text x="24" y="43" class="box-title">Editable zip</text>
+		<text x="24" y="73" class="box-copy">Keeps the editor inside</text>
+		<text x="24" y="97" class="box-copy">the exported package.</text>
+	</g>
+	<g transform="translate(520 540)">
+		<rect x="0" y="0" width="220" height="110" rx="14" fill="#fff8ed" stroke="#e5bd7b" stroke-width="3" />
+		<text x="24" y="43" class="box-title">Production zip</text>
+		<text x="24" y="73" class="box-copy">Shows only the learner</text>
+		<text x="24" y="97" class="box-copy">course runtime.</text>
+	</g>
+	<path class="arrow" d="M555 415 C455 475 400 500 370 530" />
+	<path class="arrow" d="M585 415 C610 475 630 500 630 530" />
+</svg>
