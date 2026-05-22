@@ -19,22 +19,23 @@
  *
  * Important state:
  * - pageState: the current JSON model for the page.
- * - previewMode: toggles editable authoring chrome vs learner-facing preview.
+ * - previewMode: kept false in the editor; learner preview opens separately.
  * - appRoot: DOM node where the authoring shell is rendered.
  */
 import { renderJson, renderShell } from "./authoring/shell.js";
 import { initializeActivityInteractions } from "./authoring/activity-interactions.js";
-import { checkQuizAnswer, updateBlockItemField, updateBlockOrder, updateEditableValue, updateInputValue } from "./authoring/editor-actions.js";
+import { updateBlockItemField, updateBlockOrder, updateEditableValue, updateInputValue } from "./authoring/editor-actions.js";
 import { pickTier1Icon } from "./authoring/icon-picker.js";
 import { createBlock, getBlockLabel } from "./insertion/element-definitions.js";
 import { createLayoutBlock, layoutDefinitions } from "./insertion/layout-definitions.js";
 import { downloadJson, downloadScormZip } from "./scorm/exporter.js";
-import { loadPageState, savePageState } from "./state/page-state.js";
+import { loadPageState, resetPageState, savePageState } from "./state/page-state.js";
 import { showToast } from "./ui/toast.js";
 
 let pageState = loadPageState();
 let previewMode = false;
 let appRoot;
+const PREVIEW_STORAGE_PREFIX = "d2l-scorm-authoring-demo:preview:";
 
 /**
  * Starts the authoring demo and registers document-level event handlers.
@@ -70,7 +71,7 @@ function render() {
 
 /**
  * Routes click events from toolbar buttons, modal options, block controls,
- * preview interactions, and export buttons.
+ * learner preview, and export buttons.
  *
  * @param {MouseEvent} event - Browser click event from document-level delegation.
  * @returns {void}
@@ -84,6 +85,10 @@ async function handleClick(event) {
 		savePage();
 		return;
 	}
+	if (target.closest("#startOverBtn")) {
+		resetPage();
+		return;
+	}
 	if (target.closest("#insertElementBtn")) {
 		document.querySelector("#insertElementDialog").opened = true;
 		return;
@@ -93,9 +98,7 @@ async function handleClick(event) {
 		return;
 	}
 	if (target.closest("#previewBtn")) {
-		previewMode = !previewMode;
-		render();
-		showToast(previewMode ? "Preview mode enabled" : "Editing mode enabled", "success");
+		openLearnerPreview();
 		return;
 	}
 	if (target.closest("#exportBtn")) {
@@ -163,19 +166,6 @@ async function handleClick(event) {
 		downloadScormZip(pageState, zipButton.dataset.downloadZip, showToast);
 		return;
 	}
-
-	const flipCard = target.closest("[data-flip-preview]");
-	if (flipCard) {
-		const flipped = !flipCard.classList.contains("is-flipped");
-		flipCard.classList.toggle("is-flipped", flipped);
-		flipCard.setAttribute("aria-pressed", String(flipped));
-		return;
-	}
-
-	const quizCheck = target.closest("[data-quiz-check]");
-	if (quizCheck) {
-		checkQuizAnswer(pageState, quizCheck.dataset.blockId);
-	}
 }
 
 /**
@@ -226,4 +216,55 @@ function savePage() {
 	} catch {
 		showToast("The browser blocked localStorage for this page", "critical");
 	}
+}
+
+/**
+ * Resets the editor to the default starter page and clears persisted draft data.
+ *
+ * @returns {void}
+ */
+function resetPage() {
+	const shouldReset = window.confirm(
+		"Start over and reset to the default page? This clears your saved draft.",
+	);
+	if (!shouldReset) return;
+	pageState = resetPageState();
+	cleanupPreviewStorage();
+	render();
+	showToast("Editor reset to the default page", "success");
+}
+
+/**
+ * Opens the current unsaved page as the learner-facing course in a new tab.
+ *
+ * @returns {void}
+ */
+function openLearnerPreview() {
+	const previewId = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+	try {
+		cleanupPreviewStorage();
+		window.localStorage.setItem(
+			`${PREVIEW_STORAGE_PREFIX}${previewId}`,
+			JSON.stringify(pageState),
+		);
+	} catch {
+		showToast("The browser blocked learner preview storage", "critical");
+		return;
+	}
+
+	const previewUrl = new URL("./preview.html", window.location.href);
+	previewUrl.searchParams.set("preview", previewId);
+	const previewWindow = window.open(previewUrl.href, "_blank");
+	if (!previewWindow) {
+		showToast("The browser blocked the preview tab", "critical");
+		return;
+	}
+	previewWindow.opener = null;
+	showToast("Learner preview opened in a new tab", "success");
+}
+
+function cleanupPreviewStorage() {
+	Object.keys(window.localStorage)
+		.filter((key) => key.startsWith(PREVIEW_STORAGE_PREFIX))
+		.forEach((key) => window.localStorage.removeItem(key));
 }

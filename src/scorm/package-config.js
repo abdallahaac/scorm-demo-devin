@@ -28,6 +28,8 @@ export const SOURCE_MODULE_FILES = [
 	"src/insertion/element-definitions.js",
 	"src/insertion/insert-dialogs.js",
 	"src/insertion/layout-definitions.js",
+	"src/learner/runtime.js",
+	"src/preview.js",
 	"src/scorm/course-runtime-template.js",
 	"src/scorm/export-dialog.js",
 	"src/scorm/exporter.js",
@@ -48,6 +50,7 @@ export const STYLE_FILES = [
 	"styles/base.css",
 	"styles/authoring/editor.css",
 	"styles/insertion/modals.css",
+	"styles/learner/course.css",
 	"styles/scorm/export.css",
 	"styles/responsive.css",
 ];
@@ -80,6 +83,7 @@ export function getExportFileList(packageType = "production") {
 	if (packageType === "editor") {
 		return [
 			"index.html",
+			"preview.html",
 			"imsmanifest.xml",
 			"assets/data/page.json",
 			"app.js",
@@ -95,6 +99,7 @@ export function getExportFileList(packageType = "production") {
 		"assets/data/page.json",
 		"assets/js/runtime.js",
 		"assets/css/course.css",
+		"src/learner/runtime.js",
 		"src/authoring/activity-interactions.js",
 		"brightspace-core-bundle.js",
 		"lang/en.js",

@@ -1,131 +1,22 @@
-/**
- * src/scorm/course-runtime-template.js
- *
- * Purpose:
- * Generates HTML, runtime JavaScript, and course CSS for exported packages.
- *
- * Intent:
- * This file is responsible for production package templates, editable package
- * templates, and learner runtime assets because SCORM export needs generated
- * files that can run independently after they are zipped.
- *
- * Role in the app:
- * - Called by src/scorm/exporter.js while assembling package contents.
- * - Uses pageState to seed either a learner-facing course or an editable LMS tool.
- * - Produces templates that load the same D2L Core bundle used by the demo.
- *
- * Data received/exported:
- * - Receives pageState for title, locale, and editable-package seed data.
- * - Exports string builder functions for index.html, runtime.js, and course.css.
- */
-import { escapeAttr, escapeHtml } from "../shared/html.js";
-
-/**
- * Builds the learner-facing index.html for the production package.
- *
- * @param {object} pageState - Current page JSON model.
- * @returns {string} HTML document string.
- *
- * This function does not mutate state. It supports production export by
- * creating a clean entry point that loads runtime.js and course.css.
- */
-export function buildProductionIndexHtml(pageState) {
-	return `<!doctype html>
-<html lang="${escapeAttr(pageState.metadata.locale || "en")}">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>${escapeHtml(pageState.title)}</title>
-		<script type="module" src="./brightspace-core-bundle.js"></script>
-		<link rel="stylesheet" href="./assets/css/course.css" />
-	</head>
-	<body>
-		<main id="course"></main>
-		<script type="module" src="./assets/js/runtime.js"></script>
-	</body>
-</html>
-`;
-}
-
-/**
- * Builds the authoring-enabled index.html for the editable LMS package.
- *
- * @param {object} pageState - Current page JSON model used as the package seed.
- * @returns {string} HTML document string.
- *
- * This function does not mutate pageState. It supports editable LMS export by
- * embedding the current JSON as window.D2L_AUTHORING_DEMO_PAGE and loading app.js.
- */
-export function buildEditorIndexHtml(pageState) {
-	const seedJson = JSON.stringify(pageState).replace(/</g, "\\u003c");
-	const storageKey =
-		`d2l-scorm-authoring-demo:editor:${pageState.metadata.schemaVersion || 1}:${Date.now()}:${pageState.title}`
-			.replace(/[^a-z0-9:_-]+/gi, "-")
-			.toLowerCase();
-	return `<!doctype html>
-<html lang="${escapeAttr(pageState.metadata.locale || "en")}">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>${escapeHtml(pageState.title)} - editable SCORM package</title>
-		<script>
-			window.D2L_AUTHORING_DEMO_PAGE = ${seedJson};
-			window.D2L_AUTHORING_STORAGE_KEY = "${escapeAttr(storageKey)}";
-		</script>
-		<script type="module" src="./brightspace-core-bundle.js"></script>
-		<link rel="stylesheet" href="./styles.css" />
-	</head>
-	<body>
-		<a class="skip-link" href="#editor-canvas">Skip to editor canvas</a>
-		<div id="app"></div>
-		<d2l-alert-toast id="toast" type="success"></d2l-alert-toast>
-		<script type="module" src="./app.js"></script>
-	</body>
-</html>
-`;
-}
-
-/**
- * Builds the standalone learner runtime JavaScript.
- *
- * @returns {string} JavaScript source for assets/js/runtime.js.
- *
- * This function returns a string rather than executing code. It supports
- * production export by rendering assets/data/page.json without authoring controls.
- */
-export function buildRuntimeJs() {
-	return `/**
- * assets/js/runtime.js
- *
- * Purpose:
- * Starts the production SCORM learner page from assets/data/page.json.
- */
-import { loadProductionCourse } from "../../src/learner/runtime.js";
-
-loadProductionCourse();
-`;
-}
-
-/**
- * Builds the standalone CSS for the production learner package.
- *
- * @returns {string} CSS source for assets/css/course.css.
- *
- * This function returns generated CSS and does not read or mutate app state.
- * It keeps the production package compact and separate from authoring styles.
- */
-export function buildCourseCss() {
-	return `body {
-	margin: 0;
-	padding: 2rem;
+body {
+	background: #ffffff;
 	color: #202122;
 	font-family: "Lato", "Noto Sans", "Segoe UI", Arial, sans-serif;
 	line-height: 1.5;
+	margin: 0;
+	padding: 2rem;
 }
 
 main {
 	margin: 0 auto;
 	max-width: 980px;
+}
+
+h1,
+h2,
+h3,
+p {
+	margin-top: 0;
 }
 
 h1,
@@ -141,8 +32,36 @@ img {
 	max-width: 100%;
 }
 
+figcaption {
+	color: #565a5c;
+	font-size: 0.9rem;
+	margin-top: 0.5rem;
+}
+
+.course-header {
+	align-items: start;
+	border-bottom: 1px solid #d3d9e3;
+	display: flex;
+	gap: 1rem;
+	justify-content: space-between;
+	margin-bottom: 1.5rem;
+	padding-bottom: 1rem;
+}
+
+.course-header h1 {
+	font-size: 2rem;
+	margin-bottom: 0;
+}
+
+.course-content {
+	display: grid;
+	gap: 1rem;
+}
+
+.course-empty,
 .course-callout,
-.course-region {
+.course-region,
+.quiz-block {
 	border: 1px solid #d3d9e3;
 	border-radius: 8px;
 	padding: 1rem;
@@ -152,11 +71,24 @@ img {
 	background: #f5faf7;
 }
 
+.course-callout h2,
+.course-region h2,
+.quiz-block h2,
+.reflection-block h2 {
+	font-size: 1.35rem;
+}
+
+.course-callout > :last-child,
+.course-region > :last-child,
+.quiz-block > :last-child,
+.reflection-block > :last-child {
+	margin-bottom: 0;
+}
+
 .course-layout {
 	display: grid;
 	gap: 0.75rem;
 	grid-template-columns: repeat(var(--columns, 1), minmax(0, 1fr));
-	margin: 1rem 0;
 }
 
 .course-button {
@@ -167,6 +99,69 @@ img {
 	font-weight: 700;
 	padding: 0.55rem 1rem;
 	text-decoration: none;
+}
+
+.course-link-row {
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.75rem;
+}
+
+.course-divider {
+	border: 0;
+	border-top: 2px solid #d3d9e3;
+	margin: 0.5rem 0;
+}
+
+.flip-card-button {
+	background: #ffffff;
+	border: 1px solid #d3d9e3;
+	border-radius: 8px;
+	color: #202122;
+	cursor: pointer;
+	display: grid;
+	font: inherit;
+	min-height: 8rem;
+	padding: 1rem;
+	text-align: left;
+	width: 100%;
+}
+
+.flip-card-button .back {
+	display: none;
+}
+
+.flip-card-button.is-flipped .front {
+	display: none;
+}
+
+.flip-card-button.is-flipped .back {
+	display: block;
+}
+
+.quiz-options,
+.checklist-block__items {
+	display: grid;
+	gap: 0.5rem;
+	list-style: none;
+	margin: 0 0 0.75rem;
+	padding: 0;
+}
+
+.quiz-option,
+.checklist-block__item {
+	align-items: start;
+	display: grid;
+	gap: 0.5rem;
+	grid-template-columns: auto minmax(0, 1fr);
+}
+
+.quiz-feedback {
+	color: #565a5c;
+	font-weight: 700;
+	margin: 0.75rem 0 0;
+	min-height: 1.5rem;
 }
 
 .activity-copy,
@@ -278,11 +273,7 @@ img {
 .answer-card {
 	background: transparent;
 	border-color: transparent;
-}
-
-.answer-card,
-.sortable {
-	cursor: pointer;
+	cursor: grab;
 }
 
 .answer-card.dragging {
@@ -434,6 +425,10 @@ img {
 	padding: 0;
 }
 
+.sortable {
+	cursor: pointer;
+}
+
 .sortable.is-selected,
 .sortable:focus-visible,
 .sort-category-content:focus-visible,
@@ -473,6 +468,11 @@ img {
 	pointer-events: none;
 }
 
+.sort-items-dropzone.is-empty .sort-drop-placeholder {
+	min-height: 3rem;
+	place-items: center;
+}
+
 .sr-only {
 	border: 0;
 	clip: rect(0, 0, 0, 0);
@@ -488,6 +488,10 @@ img {
 @media (max-width: 44rem) {
 	body {
 		padding: 1rem;
+	}
+
+	.course-header {
+		display: grid;
 	}
 
 	.course-layout {
@@ -506,6 +510,4 @@ img {
 		border-bottom: 1px solid #d3d9e3;
 		border-right: 0;
 	}
-}
-`;
 }

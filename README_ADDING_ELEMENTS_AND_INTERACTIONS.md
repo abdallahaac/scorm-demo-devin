@@ -270,7 +270,7 @@ Then verify:
 4. Edit checklist item text on the canvas.
 5. Confirm the JSON panel updates.
 6. Click Save.
-7. Toggle Preview.
+7. Open Preview and confirm the learner tab has no editor toolbar.
 8. Export both SCORM options.
 ```
 
@@ -588,8 +588,8 @@ JSON:
   Saved page reloads from localStorage.
 
 Preview:
-  Preview mode hides authoring controls.
-  Learner-facing behavior still works.
+  Preview opens the learner runtime in a new tab.
+  Learner-facing behavior still works without authoring controls.
 
 SCORM:
   Download JSON works.
@@ -597,4 +597,3 @@ SCORM:
   Production package exports.
   Production package renders the new block.
 ```
-

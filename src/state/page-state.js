@@ -17,7 +17,7 @@
  *
  * Data received/exported:
  * - Receives pageState during save.
- * - Exports STORAGE_KEY, loadPageState(), and savePageState().
+ * - Exports STORAGE_KEY, loadPageState(), savePageState(), and resetPageState().
  */
 import { defaultPage } from "./default-page.js";
 import { clone } from "../shared/object.js";
@@ -64,4 +64,21 @@ export function savePageState(pageState) {
 	};
 	window.localStorage.setItem(STORAGE_KEY, JSON.stringify(nextState));
 	return nextState;
+}
+
+/**
+ * Clears the saved draft and returns the starter page JSON.
+ *
+ * @returns {object} Fresh clone of the default page model.
+ *
+ * This function resets the editor to the baseline starter content, including
+ * metadata.lastSaved, so the next render matches a first-time page load.
+ */
+export function resetPageState() {
+	try {
+		window.localStorage.removeItem(STORAGE_KEY);
+	} catch {
+		// Storage can be unavailable in restrictive browser or LMS settings.
+	}
+	return clone(defaultPage);
 }

@@ -83,13 +83,13 @@ Use this sequence when presenting the demo:
 7. Edit the placeholder text inside the inserted layout regions.
 8. Show the JSON panel updating as edits are made.
 9. Click `Save`.
-10. Toggle `Preview`.
+10. Click `Preview` to open the learner view in a new tab.
 11. Click `Export SCORM`.
 12. Show both export options:
     - `Export editable LMS package`
     - `Export production package`
 
-This demonstrates the core concept: author content, insert layouts and interactions, save JSON, preview, and export SCORM.
+This demonstrates the core concept: author content, insert layouts and interactions, save JSON, preview the learner view, and export SCORM.
 
 ### 2a. Authoring Tool Logic
 

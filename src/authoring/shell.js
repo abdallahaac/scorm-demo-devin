@@ -51,9 +51,10 @@ export function renderShell({ root, pageState, previewMode }) {
 				</div>
 				<nav class="toolbar-actions" aria-label="Authoring actions">
 					<d2l-button-subtle id="saveBtn" text="Save" icon="tier1:save"></d2l-button-subtle>
+					<d2l-button-subtle id="startOverBtn" text="Start over" icon="tier1:refresh"></d2l-button-subtle>
 					<d2l-button-subtle id="insertElementBtn" text="Insert Element" icon="tier1:add"></d2l-button-subtle>
 					<d2l-button-subtle id="layoutBtn" text="Layouts" icon="tier1:style"></d2l-button-subtle>
-					<d2l-button-subtle id="previewBtn" text="${previewMode ? "Edit" : "Preview"}" icon="tier1:preview"></d2l-button-subtle>
+					<d2l-button-subtle id="previewBtn" text="Preview" icon="tier1:new-window"></d2l-button-subtle>
 					<d2l-button id="exportBtn" primary>Export SCORM</d2l-button>
 				</nav>
 			</header>

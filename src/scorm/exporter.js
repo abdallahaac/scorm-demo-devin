@@ -21,7 +21,7 @@
  * - Receives pageState and showToast callback.
  * - Produces browser downloads; it does not persist data.
  */
-import { buildCourseCss, buildEditorIndexHtml, buildProductionIndexHtml, buildRuntimeJs } from "./course-runtime-template.js";
+import { buildEditorIndexHtml, buildProductionIndexHtml, buildRuntimeJs } from "./course-runtime-template.js";
 import { buildManifestXml } from "./manifest.js";
 import { EXPORT_PACKAGES, SOURCE_MODULE_FILES, STYLE_FILES } from "./package-config.js";
 import { createZipBlob } from "./zip.js";
@@ -88,7 +88,7 @@ export async function downloadScormZip(pageState, packageType = "production", sh
 async function getExportFiles(pageState, packageType = "production") {
 	const bundleText = await fetchText("./brightspace-core-bundle.js");
 	if (packageType === "editor") {
-		const sourceFiles = await readNamedFiles(["app.js", ...SOURCE_MODULE_FILES, ...STYLE_FILES]);
+		const sourceFiles = await readNamedFiles(["app.js", "preview.html", ...SOURCE_MODULE_FILES, ...STYLE_FILES]);
 		return [
 			{ path: "index.html", content: buildEditorIndexHtml(pageState) },
 			{ path: "imsmanifest.xml", content: buildManifestXml(pageState, "editor") },
@@ -100,12 +100,15 @@ async function getExportFiles(pageState, packageType = "production") {
 	}
 
 	const activityInteractions = await fetchText("./src/authoring/activity-interactions.js");
+	const learnerRuntime = await fetchText("./src/learner/runtime.js");
+	const courseCss = await fetchText("./styles/learner/course.css");
 	return [
 		{ path: "index.html", content: buildProductionIndexHtml(pageState) },
 		{ path: "imsmanifest.xml", content: buildManifestXml(pageState, "production") },
 		{ path: "assets/data/page.json", content: `${JSON.stringify(pageState, null, 2)}\n` },
 		{ path: "assets/js/runtime.js", content: buildRuntimeJs() },
-		{ path: "assets/css/course.css", content: buildCourseCss() },
+		{ path: "assets/css/course.css", content: courseCss },
+		{ path: "src/learner/runtime.js", content: learnerRuntime },
 		{ path: "src/authoring/activity-interactions.js", content: activityInteractions },
 		{ path: "brightspace-core-bundle.js", content: bundleText },
 		{ path: "lang/en.js", content: "export default {};\n" },
