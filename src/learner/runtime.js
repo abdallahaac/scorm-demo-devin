@@ -111,7 +111,12 @@ function renderBlock(block) {
 		case "image":
 			return renderImage(block);
 		case "accordion":
+		case "collapsible":
 			return renderAccordion(block);
+		case "alert":
+			return renderAlert(block);
+		case "dropdown-menu":
+			return renderDropdownMenu(block);
 		case "tabs":
 			return renderTabs(block);
 		case "flipcard":
@@ -164,6 +169,15 @@ function renderImage(block) {
 	`;
 }
 
+function renderAlert(block) {
+	return `
+		<d2l-alert type="${escapeAttr(block.alertType || "default")}">
+			<strong>${escapeHtml(block.title || "D2L alert")}</strong>
+			<div>${escapeHtml(block.body || "")}</div>
+		</d2l-alert>
+	`;
+}
+
 function renderAccordion(block) {
 	return `
 		<d2l-collapsible-panel-group>
@@ -177,6 +191,24 @@ function renderAccordion(block) {
 				)
 				.join("")}
 		</d2l-collapsible-panel-group>
+	`;
+}
+
+function renderDropdownMenu(block) {
+	const menuItems = (block.items || [])
+		.map((item) => `<d2l-menu-item text="${escapeAttr(item.text)}"></d2l-menu-item>`)
+		.join("");
+	return `
+		<section class="dropdown-menu-block" aria-label="D2L dropdown menu">
+			<d2l-dropdown boundary="viewport">
+				<d2l-button class="d2l-dropdown-opener">${escapeHtml(block.label || "Open menu")}</d2l-button>
+				<d2l-dropdown-menu align="start" boundary="viewport" max-width="320" vertical-offset="4">
+					<d2l-menu label="${escapeAttr(block.label || "Open menu")}">
+						${menuItems}
+					</d2l-menu>
+				</d2l-dropdown-menu>
+			</d2l-dropdown>
+		</section>
 	`;
 }
 

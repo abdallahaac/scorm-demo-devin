@@ -225,9 +225,16 @@
 }
 
 .callout-block__title,
-.scenario-block__title {
+.scenario-block__title,
+.alert-block__title {
 	font-weight: 700;
 	margin: 0 0 0.5rem;
+}
+
+.dropdown-menu-block {
+	align-items: center;
+	display: flex;
+	min-height: 3rem;
 }
 
 .divider-block {

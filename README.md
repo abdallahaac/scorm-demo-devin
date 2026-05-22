@@ -1,6 +1,6 @@
-# D2L SCORM Authoring Demo
+# Basic D2L SCORM Demo
 
-Standalone presentation demo built from the `IL_microaggresion_template_scorm_editor` dev-branch context. The app is intentionally build-free: browser ES modules, static CSS, and the copied `brightspace-core-bundle.js`.
+Very small presentation demo for the core idea: edit a default page layout, add a few D2L Core components, preview the learner page, and export either an LMS-editable package or a production package. The app is intentionally build-free: browser ES modules, static CSS, and the copied `brightspace-core-bundle.js`.
 
 ## Run
 
@@ -70,26 +70,27 @@ For step-by-step instructions on adding a new element, interaction, or layout, s
 
 ## Part 2 Presentation Walkthrough
 
-### 1. Fundamental Basic Demo
+### 1. Basic Demo Walkthrough
 
 Use this sequence when presenting the demo:
 
 1. Open `http://localhost:5174`.
 2. Edit the page title directly on the canvas.
-3. Click `Insert Element`.
-4. Add a simple block such as `Text block`, `Quiz question`, or `Accordion interaction`.
-5. Click `Layouts`.
-6. Insert `Header + two columns + footer` or another visible layout.
-7. Edit the placeholder text inside the inserted layout regions.
-8. Show the JSON panel updating as edits are made.
-9. Click `Save`.
-10. Click `Preview` to open the learner view in a new tab.
-11. Click `Export SCORM`.
-12. Show both export options:
-    - `Export editable LMS package`
-    - `Export production package`
+3. Edit the starter text and the two default layout regions.
+4. Click `Add D2L Component`.
+5. Add `Collapsible dropdown`, `D2L alert`, or `D2L dropdown menu`.
+6. Click `Add Layout`.
+7. Insert the `Default page layout`.
+8. Edit the placeholder text inside the inserted layout regions.
+9. Show the JSON panel updating as edits are made.
+10. Click `Save`.
+11. Click `Preview` to open the learner view in a new tab.
+12. Click `Export SCORM`.
+13. Show both export options:
+    - `Export editable in LMS`
+    - `Export production LMS package`
 
-This demonstrates the core concept: author content, insert layouts and interactions, save JSON, preview the learner view, and export SCORM.
+This demonstrates the core concept: author content, insert a layout and three allowed D2L components, save JSON, preview the learner view, and export SCORM.
 
 ### 2a. Authoring Tool Logic
 
@@ -121,16 +122,16 @@ Relevant files:
 - `src/insertion/insert-dialogs.js`
 - `src/authoring/block-renderers.js`
 
-The demo does not automatically scan the D2L Core Library to discover components. Instead, it defines a controlled authoring library of allowed blocks and interactions in `src/insertion/element-definitions.js`.
+The demo does not automatically scan the D2L Core Library to discover components. Instead, it defines a tiny controlled authoring library in `src/insertion/element-definitions.js`.
 
 D2L Core provides the UI components used to display and operate those blocks:
 
 - `d2l-dialog` for modals
 - `d2l-button` and `d2l-button-subtle` for actions
 - `d2l-icon` for icons
-- `d2l-tabs` for the tabs interaction
-- `d2l-collapsible-panel` for the accordion interaction
+- `d2l-collapsible-panel` for the collapsible dropdown
 - `d2l-input-text` and `d2l-input-textarea` for form controls
+- `d2l-dropdown`, `d2l-dropdown-menu`, `d2l-menu`, and `d2l-menu-item` for the dropdown menu
 - `d2l-alert` and `d2l-alert-toast` for feedback
 
 The element insertion flow is:
@@ -149,11 +150,7 @@ block-renderers.js
 renders the block using D2L components where possible
 ```
 
-Examples:
-
-- Accordion is defined as a block type, then rendered with D2L `d2l-collapsible-panel`.
-- Tabs are defined as a block type, then rendered with D2L `d2l-tabs`.
-- Quiz, reflection, scenario, flip card, and callout are demo block types rendered from the same JSON model.
+The visible insertable components are `Collapsible dropdown`, `D2L alert`, and `D2L dropdown menu`.
 
 ### 2c. Export and Repackaging System
 
@@ -220,7 +217,7 @@ Fallbacks are limited to the editable canvas shell, layout thumbnails, and picke
 
 ## Export Options
 
-- `Export editable LMS package`: keeps editing available after import into an LMS.
-- `Export production package`: creates a learner-facing SCORM-style package with authoring removed.
+- `Export editable in LMS`: keeps editing available after import into an LMS.
+- `Export production LMS package`: creates a learner-facing SCORM-style package with authoring removed.
 
 The export is realistic enough for presentation and architecture discussion, but it is not a full LMS certification package.

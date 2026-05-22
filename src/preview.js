@@ -6,7 +6,7 @@
  */
 import { renderCourse } from "./learner/runtime.js";
 
-const PREVIEW_STORAGE_PREFIX = "d2l-scorm-authoring-demo:preview:";
+const PREVIEW_STORAGE_PREFIX = "basic-d2l-scorm-demo:preview:";
 const root = document.querySelector("#course");
 
 const renderError = () => {

@@ -33,7 +33,7 @@ export function renderExportDialog() {
 		<d2l-dialog id="exportDialog" title-text="SCORM Export">
 			<div class="dialog-body">
 				<d2l-alert type="default">
-					Choose the editable LMS package when reviewers need to keep changing the page in Brightspace. Choose the production package when the page is ready for learners.
+					Choose Editable in LMS when reviewers still need the page editor. Choose Production export when the page is ready for learners.
 				</d2l-alert>
 				<div class="export-package-grid">
 					${renderPackageCard("editor", editorFiles)}
@@ -75,7 +75,7 @@ function renderPackageCard(packageType, files) {
 				${files.map((file) => `<li><code>${escapeHtml(file)}</code></li>`).join("")}
 			</ul>
 			<d2l-button ${primary} data-download-zip="${packageType}">
-				${packageType === "editor" ? "Export editable LMS package" : "Export production package"}
+				${packageType === "editor" ? "Export editable in LMS" : "Export production LMS package"}
 			</d2l-button>
 		</section>
 	`;

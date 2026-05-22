@@ -117,7 +117,12 @@ function renderBlockContent(block, previewMode) {
 		case "callout":
 			return renderCalloutBlock(block, previewMode);
 		case "accordion":
+		case "collapsible":
 			return renderAccordionBlock(block, previewMode);
+		case "alert":
+			return renderD2lAlertBlock(block, previewMode);
+		case "dropdown-menu":
+			return renderDropdownMenuBlock(block, previewMode);
 		case "tabs":
 			return renderTabsBlock(block, previewMode);
 		case "flipcard":
@@ -195,6 +200,15 @@ function renderCalloutBlock(block, previewMode) {
 	`;
 }
 
+function renderD2lAlertBlock(block, previewMode) {
+	return `
+		<d2l-alert type="${escapeAttr(block.alertType || "default")}">
+			<strong ${editableAttributes(block, "title", {}, previewMode)} class="editable alert-block__title">${escapeHtml(block.title || "D2L alert")}</strong>
+			<div ${editableAttributes(block, "body", {}, previewMode)} class="editable">${escapeHtml(block.body || "")}</div>
+		</d2l-alert>
+	`;
+}
+
 /**
  * Renders an accordion interaction using D2L collapsible panels.
  *
@@ -206,7 +220,7 @@ function renderCalloutBlock(block, previewMode) {
  * each item becomes a d2l-collapsible-panel while JSON remains editable.
  */
 function renderAccordionBlock(block, previewMode) {
-	const panels = block.items
+	const panels = (block.items || [])
 		.map(
 			(item, index) => `
 		<d2l-collapsible-panel panel-title="${escapeAttr(item.title)}" heading-level="3" ${index === 0 ? "expanded" : ""}>
@@ -219,8 +233,8 @@ function renderAccordionBlock(block, previewMode) {
 	const editor = previewMode
 		? ""
 		: `
-		<div class="interaction-editor" aria-label="Accordion title editor">
-			${block.items
+		<div class="interaction-editor" aria-label="Collapsible title editor">
+			${(block.items || [])
 				.map(
 					(item, index) => `
 				<div class="interaction-row">
@@ -234,6 +248,46 @@ function renderAccordionBlock(block, previewMode) {
 	`;
 
 	return `<d2l-collapsible-panel-group>${panels}</d2l-collapsible-panel-group>${editor}`;
+}
+
+function renderDropdownMenuBlock(block, previewMode) {
+	const items = block.items || [];
+	const editor = previewMode
+		? ""
+		: `
+		<div class="interaction-editor" aria-label="Dropdown menu editor">
+			<div class="interaction-row">
+				<span class="layout-region__label">Button label</span>
+				<div ${editableAttributes(block, "label", {}, previewMode)} class="editable">${escapeHtml(block.label || "Open menu")}</div>
+			</div>
+			${items
+				.map(
+					(item, index) => `
+				<div class="interaction-row">
+					<span class="layout-region__label">Menu item ${index + 1}</span>
+					<div ${editableAttributes(block, "text", { itemIndex: index }, previewMode)} class="editable">${escapeHtml(item.text)}</div>
+				</div>
+			`,
+				)
+				.join("")}
+		</div>
+	`;
+
+	return `
+		<section class="dropdown-menu-block" aria-label="D2L dropdown menu">
+			<d2l-dropdown boundary="viewport">
+				<d2l-button class="d2l-dropdown-opener" data-dropdown-label-preview>${escapeHtml(block.label || "Open menu")}</d2l-button>
+				<d2l-dropdown-menu align="start" boundary="viewport" max-width="320" vertical-offset="4">
+					<d2l-menu label="${escapeAttr(block.label || "Open menu")}">
+						${items
+							.map((item, index) => `<d2l-menu-item data-dropdown-item-preview="${index}" text="${escapeAttr(item.text)}"></d2l-menu-item>`)
+							.join("")}
+					</d2l-menu>
+				</d2l-dropdown-menu>
+			</d2l-dropdown>
+		</section>
+		${editor}
+	`;
 }
 
 /**

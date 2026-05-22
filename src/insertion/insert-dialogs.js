@@ -29,7 +29,7 @@ import { escapeAttr, escapeHtml } from "../shared/html.js";
  */
 export function renderInsertDialog() {
 	return `
-		<d2l-dialog id="insertElementDialog" title-text="Insert Element">
+		<d2l-dialog id="insertElementDialog" title-text="Add D2L Component">
 			<div class="dialog-body">
 				<div class="element-grid" role="list" aria-label="Insertable elements">
 					${elementDefinitions.map((definition) => `
@@ -61,7 +61,7 @@ export function renderInsertDialog() {
 export function renderLayoutDialog() {
 	const categories = [...new Set(layoutDefinitions.map((layout) => layout.category))];
 	return `
-		<d2l-dialog id="layoutDialog" title-text="Layouts">
+		<d2l-dialog id="layoutDialog" title-text="Add Layout">
 			<div class="dialog-body">
 				${categories.map((category) => `
 					<section class="layout-category" aria-labelledby="${escapeAttr(category.replace(/\s+/g, "-").toLowerCase())}">

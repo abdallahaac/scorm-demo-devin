@@ -23,47 +23,47 @@ import { createId } from "../shared/ids.js";
 // Starter model rendered by the authoring canvas. The same structure is saved
 // to localStorage and exported as assets/data/page.json in both SCORM packages.
 export const defaultPage = {
-	title: "Creator+ SCORM Authoring Demo",
+	title: "Basic D2L SCORM Demo Page",
 	metadata: {
 		schemaVersion: 1,
 		locale: "en",
-		source: "D2L Core Library authoring demo",
+		source: "Basic D2L Core SCORM demo",
 		lastSaved: null,
 	},
 	blocks: [
 		{
 			id: createId("block"),
 			type: "heading",
-			content: "Build a page from editable JSON blocks",
+			content: "Default page layout",
 			metadata: { insertedFrom: "starter" },
 		},
 		{
 			id: createId("block"),
 			type: "text",
 			content:
-				"Use Insert Element or Layouts to add content. Each editable region updates the JSON state and can be saved to localStorage or exported as a SCORM-style package.",
+				"Edit this starter content directly on the page. Use Add D2L Component to insert a collapsible panel, alert, or dropdown menu, then export either an editable LMS package or a production learner package.",
 			metadata: { insertedFrom: "starter" },
 		},
 		{
 			id: createId("block"),
 			type: "layout",
-			layoutType: "image-left-text-right",
-			title: "Image left / text right",
+			layoutType: "default-page-layout",
+			title: "Default page layout",
 			settings: { columns: 2 },
 			regions: [
 				{
 					id: createId("region"),
-					role: "Image",
-					kind: "media",
+					role: "Left content",
+					kind: "content",
 					span: 1,
-					content: "Image placeholder. Replace this with a course visual or D2L asset reference.",
+					content: "Editable left column content for the lesson page.",
 				},
 				{
 					id: createId("region"),
-					role: "Text",
+					role: "Right content",
 					kind: "content",
 					span: 1,
-					content: "Editable panel text. This region is represented as JSON and exported into assets/data/page.json.",
+					content: "Editable right column content. These fields update the JSON used by both SCORM exports.",
 				},
 			],
 			metadata: { insertedFrom: "starter" },

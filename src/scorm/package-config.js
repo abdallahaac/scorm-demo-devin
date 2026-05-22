@@ -57,16 +57,16 @@ export const STYLE_FILES = [
 
 export const EXPORT_PACKAGES = {
 	editor: {
-		fileName: "d2l-scorm-authoring-demo-editor.zip",
-		label: "Editable LMS package",
-		description: "Keeps the authoring toolbar, insert modals, editable canvas, localStorage save, JSON panel, and SCORM export controls inside the LMS.",
-		toast: "Editable LMS SCORM package prepared",
+		fileName: "basic-d2l-demo-editable-lms.zip",
+		label: "Editable in LMS",
+		description: "Keeps the page editor, editable fields, JSON panel, and export controls available after LMS import.",
+		toast: "Editable LMS package prepared",
 	},
 	production: {
-		fileName: "d2l-scorm-authoring-demo-production.zip",
-		label: "Production package",
-		description: "Exports a learner-facing SCORM package with the saved JSON rendered by a compact runtime and no authoring controls.",
-		toast: "Production SCORM package prepared",
+		fileName: "basic-d2l-demo-production-lms.zip",
+		label: "Production export",
+		description: "Exports a learner-facing LMS package with the saved JSON rendered by the production runtime and no editor controls.",
+		toast: "Production LMS package prepared",
 	},
 };
 

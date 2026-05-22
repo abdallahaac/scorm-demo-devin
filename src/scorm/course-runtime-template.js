@@ -59,7 +59,7 @@ export function buildProductionIndexHtml(pageState) {
 export function buildEditorIndexHtml(pageState) {
 	const seedJson = JSON.stringify(pageState).replace(/</g, "\\u003c");
 	const storageKey =
-		`d2l-scorm-authoring-demo:editor:${pageState.metadata.schemaVersion || 1}:${Date.now()}:${pageState.title}`
+		`basic-d2l-scorm-demo:editor:${pageState.metadata.schemaVersion || 1}:${Date.now()}:${pageState.title}`
 			.replace(/[^a-z0-9:_-]+/gi, "-")
 			.toLowerCase();
 	return `<!doctype html>
@@ -67,7 +67,7 @@ export function buildEditorIndexHtml(pageState) {
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>${escapeHtml(pageState.title)} - editable SCORM package</title>
+		<title>${escapeHtml(pageState.title)} - editable LMS package</title>
 		<script>
 			window.D2L_AUTHORING_DEMO_PAGE = ${seedJson};
 			window.D2L_AUTHORING_STORAGE_KEY = "${escapeAttr(storageKey)}";

@@ -35,7 +35,7 @@ import { showToast } from "./ui/toast.js";
 let pageState = loadPageState();
 let previewMode = false;
 let appRoot;
-const PREVIEW_STORAGE_PREFIX = "d2l-scorm-authoring-demo:preview:";
+const PREVIEW_STORAGE_PREFIX = "basic-d2l-scorm-demo:preview:";
 
 /**
  * Starts the authoring demo and registers document-level event handlers.
@@ -188,6 +188,7 @@ function handleInput(event) {
 	const editable = event.target.closest?.("[data-editable]");
 	if (editable) {
 		updateEditableValue(pageState, editable, editable.textContent.trim());
+		syncComponentPreview(editable);
 		renderJson(pageState);
 		return;
 	}
@@ -267,4 +268,34 @@ function cleanupPreviewStorage() {
 	Object.keys(window.localStorage)
 		.filter((key) => key.startsWith(PREVIEW_STORAGE_PREFIX))
 		.forEach((key) => window.localStorage.removeItem(key));
+}
+
+function syncComponentPreview(editable) {
+	const block = pageState.blocks.find((item) => item.id === editable.dataset.blockId);
+	const blockElement = editable.closest("[data-block-id]");
+	if (!block || !blockElement) return;
+
+	if (block.type === "collapsible" || block.type === "accordion") {
+		blockElement
+			.querySelectorAll("d2l-collapsible-panel")
+			.forEach((panel, index) => {
+				const title = block.items?.[index]?.title;
+				if (!title) return;
+				panel.setAttribute("panel-title", title);
+				panel.panelTitle = title;
+			});
+		return;
+	}
+
+	if (block.type !== "dropdown-menu") return;
+	const label = block.label || "Open menu";
+	const labelPreview = blockElement.querySelector("[data-dropdown-label-preview]");
+	if (labelPreview) labelPreview.textContent = label;
+	const menu = blockElement.querySelector("d2l-menu");
+	if (menu) menu.setAttribute("label", label);
+	blockElement.querySelectorAll("[data-dropdown-item-preview]").forEach((item, index) => {
+		const text = block.items?.[index]?.text || "";
+		item.setAttribute("text", text);
+		item.text = text;
+	});
 }

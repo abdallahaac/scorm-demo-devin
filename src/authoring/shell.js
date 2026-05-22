@@ -46,14 +46,14 @@ export function renderShell({ root, pageState, previewMode }) {
 		<div class="app-shell ${previewMode ? "preview-mode" : ""}">
 			<header class="topbar">
 				<div class="brand">
-					<p class="brand__eyebrow">D2L Core authoring demo</p>
+					<p class="brand__eyebrow">Basic D2L demo</p>
 					<p class="brand__title">SCORM page editor</p>
 				</div>
 				<nav class="toolbar-actions" aria-label="Authoring actions">
 					<d2l-button-subtle id="saveBtn" text="Save" icon="tier1:save"></d2l-button-subtle>
 					<d2l-button-subtle id="startOverBtn" text="Start over" icon="tier1:refresh"></d2l-button-subtle>
-					<d2l-button-subtle id="insertElementBtn" text="Insert Element" icon="tier1:add"></d2l-button-subtle>
-					<d2l-button-subtle id="layoutBtn" text="Layouts" icon="tier1:style"></d2l-button-subtle>
+					<d2l-button-subtle id="insertElementBtn" text="Add D2L Component" icon="tier1:add"></d2l-button-subtle>
+					<d2l-button-subtle id="layoutBtn" text="Add Layout" icon="tier1:style"></d2l-button-subtle>
 					<d2l-button-subtle id="previewBtn" text="Preview" icon="tier1:new-window"></d2l-button-subtle>
 					<d2l-button id="exportBtn" primary>Export SCORM</d2l-button>
 				</nav>
@@ -71,7 +71,7 @@ export function renderShell({ root, pageState, previewMode }) {
 						${previewMode ? "" : 'contenteditable="true" spellcheck="true"'}
 						data-page-title="true"
 					>${escapeHtml(pageState.title)}</h1>
-					<p class="canvas-help">${previewMode ? "Preview shows the learner-facing page rendered from the JSON model." : "Select text directly on the canvas to edit. Use block controls to reorder or remove content."}</p>
+					<p class="canvas-help">${previewMode ? "Preview shows the learner-facing page rendered from the JSON model." : "Edit text directly on the canvas, add one of the three D2L components, then export either LMS-editable or production SCORM."}</p>
 					<div id="editor-canvas" class="editor-canvas" aria-label="Editable page canvas">
 						${pageState.blocks.map((block, index) => renderBlock(block, index, pageState, previewMode)).join("")}
 					</div>

@@ -32,8 +32,8 @@ import { escapeAttr, escapeHtml } from "../shared/html.js";
  * the LMS entry point and resource listing for the selected package.
  */
 export function buildManifestXml(pageState, packageType = "production") {
-	const packageId = packageType === "editor" ? "d2l-scorm-authoring-demo-editor" : "d2l-scorm-authoring-demo-production";
-	const packageTitle = packageType === "editor" ? `${pageState.title} - editable LMS package` : pageState.title;
+	const packageId = packageType === "editor" ? "basic-d2l-demo-editable-lms" : "basic-d2l-demo-production-lms";
+	const packageTitle = packageType === "editor" ? `${pageState.title} - editable in LMS` : pageState.title;
 	return `<?xml version="1.0" encoding="UTF-8"?>
 <manifest identifier="${escapeAttr(packageId)}" version="1.0"
 	xmlns="http://www.imsproject.org/xsd/imscp_rootv1p1p2"

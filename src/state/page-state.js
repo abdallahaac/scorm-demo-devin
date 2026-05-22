@@ -22,7 +22,7 @@
 import { defaultPage } from "./default-page.js";
 import { clone } from "../shared/object.js";
 
-export const STORAGE_KEY = window.D2L_AUTHORING_STORAGE_KEY || "d2l-scorm-authoring-demo:page";
+export const STORAGE_KEY = window.D2L_AUTHORING_STORAGE_KEY || "basic-d2l-scorm-demo:page";
 
 /**
  * Loads the current page JSON model.
